@@ -9,10 +9,6 @@ Error.stackTraceLimit = 25;
 /**
  * Custom logger service implementing NestJS LoggerService.
  * Uses Winston for logging with daily rotation and custom formatting.
- * Features:
- * - Automatic caller file path detection
- * - Separation of application logs and NestJS internal logs
- * - Support for structured data and error logging
  */
 @Injectable()
 export class AppLogger implements LoggerService {
@@ -21,7 +17,6 @@ export class AppLogger implements LoggerService {
     constructor() {
         // Custom format to add the caller file path and identify internal logs
         const stackPathFormat = winston.format((info) => {
-            // Use provided callerStack if available (from log() method)
             const stack = (info.callerStack || info.stack || new Error().stack) as string;
             if (!stack) {
                 info.filePath = 'unknown';
@@ -38,7 +33,6 @@ export class AppLogger implements LoggerService {
                 if (!trimmed.startsWith('at ')) continue;
 
                 const match = trimmed.match(/(?:at\s+)?(?:.*\s+\()?(.*?):(\d+):(\d+)\)?$/);
-
                 if (match) {
                     const fullRawPath = match[1];
                     const lineNum = match[2];
@@ -46,34 +40,21 @@ export class AppLogger implements LoggerService {
                     const normalizedPath = fullRawPath.replace(/\\/g, '/');
                     const lowerPath = normalizedPath.toLowerCase();
 
-                    // Skip node internals
-                    if (lowerPath.startsWith('node:') || lowerPath.includes('internal/')) {
-                        continue;
-                    }
-
-                    // Skip the logger service itself
-                    if (lowerPath.includes('logger.service.')) {
-                        continue;
-                    }
+                    if (lowerPath.startsWith('node:') || lowerPath.includes('internal/')) continue;
+                    if (lowerPath.includes('logger.service.')) continue;
 
                     const isNodeModule = lowerPath.includes('node_modules');
-
                     try {
                         const relPath = path.relative(process.cwd(), fullRawPath);
                         const displayPath = `${relPath}:${lineNum}:${colNum}`;
 
-                        // If it's NOT in node_modules, it's our project file!
                         if (!isNodeModule) {
                             info.filePath = displayPath;
                             info.isInternal = false;
                             foundProjectFile = true;
                             break;
                         }
-
-                        // Use the first non-logger node_module frame as a fallback
-                        if (!fallbackPath) {
-                            fallbackPath = displayPath;
-                        }
+                        if (!fallbackPath) fallbackPath = displayPath;
                     } catch {
                         // Ignore and keep searching
                     }
@@ -90,142 +71,123 @@ export class AppLogger implements LoggerService {
             return info;
         });
 
-        const customFormat = winston.format.printf(
-            ({ timestamp, level, filePath, message, context, data, errors }) => {
-                const jsonPart = JSON.stringify({
-                    message,
-                    context: context || '',
-                    data: data || {},
-                    errors: Array.isArray(errors) ? errors : errors ? [errors] : [],
-                });
-                return `${timestamp} [${level.toUpperCase()}] [${filePath}]: ${jsonPart}`;
-            },
-        );
+        // JSON format for file logs
+        const jsonLogFormat = winston.format.printf(({ timestamp, level, filePath, message, context, data, errors }) => {
+            const jsonPart = JSON.stringify({
+                message,
+                context: context || '',
+                data: data || {},
+                errors: Array.isArray(errors) ? errors : errors ? [errors] : [],
+            });
+            return `${timestamp} [${level.toUpperCase()}] [${filePath}]: ${jsonPart}`;
+        });
 
-        const logFormat = winston.format.combine(
-            winston.format.timestamp(),
-            stackPathFormat(),
-            customFormat,
-        );
+        // Simple format for console logs: [LEVEL] YYYY-MM-DD HH:mm:ss: message
+        const consoleFormat = winston.format.printf(({ timestamp, level, message, errors }) => {
+            // Manually colorize the level for better visibility
+            const colorizer = winston.format.colorize();
+            const upperLevel = level.toUpperCase();
+            const colorizedLevel = colorizer.colorize(level, `[${upperLevel}]`);
 
-        // Helper to create transports for app logs (non-internal)
-        const createAppLevelTransport = (level: string) => {
+            const base = `${colorizedLevel} ${timestamp}: ${message}`;
+
+            if (level.includes('error') && errors && Array.isArray(errors) && errors.length > 0) {
+                const errorDetails = errors
+                    .map((e) => (e instanceof Error ? e.stack : typeof e === 'object' ? JSON.stringify(e, null, 2) : e))
+                    .join('\n');
+                return `${base}\n${errorDetails}`;
+            }
+            return base;
+        });
+
+        // Filter for console: only errors and startup messages
+        const consoleFilter = winston.format((info) => {
+            if (info.level === 'error') return info;
+            const msg = String(info.message);
+            const startupPatterns = [
+                'Application is running on',
+                'Nest application successfully started',
+                'Starting Nest application',
+            ];
+            return startupPatterns.some((pattern) => msg.includes(pattern)) ? info : false;
+        });
+
+        // Helper to create file transports
+        const createFileTransport = (level: string, isInternal: boolean) => {
             return new winston.transports.DailyRotateFile({
-                filename: `logs/%DATE%/${level}.log`,
+                filename: `logs/%DATE%/${isInternal ? 'nest' : level}.log`,
                 datePattern: 'YYYY-MM-DD',
                 level: level,
                 maxFiles: '30d',
                 format: winston.format.combine(
-                    winston.format((info) => (info.level === level && !info.isInternal ? info : false))(),
-                    logFormat,
+                    winston.format((info) => (isInternal ? info.isInternal : (!info.isInternal && info.level === level)) ? info : false)(),
+                    winston.format.timestamp(),
+                    jsonLogFormat,
                 ),
             });
         };
 
-        // Separate transport for framework/internal logs
-        const nestTransport = new winston.transports.DailyRotateFile({
-            filename: `logs/%DATE%/nest.log`,
-            datePattern: 'YYYY-MM-DD',
-            maxFiles: '30d',
-            format: winston.format.combine(
-                winston.format((info) => (info.isInternal ? info : false))(),
-                logFormat,
-            ),
-        });
-
         this.logger = winston.createLogger({
             level: 'silly',
-            format: logFormat,
+            format: winston.format.combine(stackPathFormat()),
             transports: [
                 new winston.transports.Console({
                     format: winston.format.combine(
-                        winston.format.colorize({ all: true }),
-                        logFormat,
+                        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+                        consoleFilter(),
+                        consoleFormat,
                     ),
                 }),
-                createAppLevelTransport('error'),
-                createAppLevelTransport('warn'),
-                createAppLevelTransport('info'),
-                createAppLevelTransport('http'),
-                createAppLevelTransport('debug'),
-                createAppLevelTransport('verbose'),
-                createAppLevelTransport('silly'),
-                nestTransport,
+                createFileTransport('error', false),
+                createFileTransport('warn', false),
+                createFileTransport('info', false),
+                createFileTransport('http', false),
+                createFileTransport('debug', false),
+                createFileTransport('verbose', false),
+                createFileTransport('silly', false),
+                createFileTransport('silly', true), // This will create nest.log
             ],
         });
     }
 
-    /**
-     * Log a message at the INFO level.
-     * @param message - The log message.
-     * @param optionalParams - Additional data or context.
-     */
     log(message: any, ...optionalParams: any[]) {
         const { data, context } = this.parseParams(optionalParams);
         const callerStack = new Error().stack;
         this.logger.info(message, { data, context, callerStack });
     }
 
-    /**
-     * Log a message at the ERROR level.
-     * @param message - The error message.
-     * @param optionalParams - Error object, additional data, or context.
-     */
     error(message: any, ...optionalParams: any[]) {
         const { data, context, errors } = this.parseErrorParams(optionalParams);
         const callerStack = new Error().stack;
         this.logger.error(message, { data, context, errors, callerStack });
     }
 
-    /**
-     * Log a message at the WARN level.
-     * @param message - The warning message.
-     * @param optionalParams - Additional data or context.
-     */
     warn(message: any, ...optionalParams: any[]) {
         const { data, context } = this.parseParams(optionalParams);
         const callerStack = new Error().stack;
         this.logger.warn(message, { data, context, callerStack });
     }
 
-    /**
-     * Log a message at the DEBUG level.
-     * @param message - The debug message.
-     * @param optionalParams - Additional data or context.
-     */
     debug(message: any, ...optionalParams: any[]) {
         const { data, context } = this.parseParams(optionalParams);
         const callerStack = new Error().stack;
         this.logger.debug(message, { data, context, callerStack });
     }
 
-    /**
-     * Log a message at the VERBOSE level.
-     * @param message - The verbose message.
-     * @param optionalParams - Additional data or context.
-     */
     verbose(message: any, ...optionalParams: any[]) {
         const { data, context } = this.parseParams(optionalParams);
         const callerStack = new Error().stack;
         this.logger.verbose(message, { data, context, callerStack });
     }
 
-    /**
-     * Parses optional parameters into data and context.
-     * @param params - Array of optional parameters.
-     * @returns Object containing data and context.
-     */
     private parseParams(params: any[]) {
         let context = '';
         let data = {};
-
         if (params.length > 0) {
             const lastParam = params[params.length - 1];
             if (typeof lastParam === 'string' && params.length > 0) {
                 context = lastParam;
-                if (params.length > 1) {
-                    data = params[0];
-                }
+                if (params.length > 1) data = params[0];
             } else {
                 data = params[0];
             }
@@ -233,29 +195,19 @@ export class AppLogger implements LoggerService {
         return { data, context };
     }
 
-    /**
-     * Parses optional parameters for error logging.
-     * @param params - Array of optional parameters.
-     * @returns Object containing errors, data, and context.
-     */
     private parseErrorParams(params: any[]) {
         let context = '';
         let errors = null;
         let data = {};
-
         if (params.length > 0) {
             const lastParam = params[params.length - 1];
             if (typeof lastParam === 'string' && params.length > 1) {
                 context = lastParam;
                 errors = params[0];
-                if (params.length > 2) {
-                    data = params[1];
-                }
+                if (params.length > 2) data = params[1];
             } else {
                 errors = params[0];
-                if (params.length > 1) {
-                    data = params[1];
-                }
+                if (params.length > 1) data = params[1];
             }
         }
         return { errors, data, context };
