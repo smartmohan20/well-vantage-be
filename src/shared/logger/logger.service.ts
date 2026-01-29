@@ -6,6 +6,14 @@ import * as path from 'path';
 // Increase stack trace limit for better caller detection
 Error.stackTraceLimit = 25;
 
+/**
+ * Custom logger service implementing NestJS LoggerService.
+ * Uses Winston for logging with daily rotation and custom formatting.
+ * Features:
+ * - Automatic caller file path detection
+ * - Separation of application logs and NestJS internal logs
+ * - Support for structured data and error logging
+ */
 @Injectable()
 export class AppLogger implements LoggerService {
     private logger: winston.Logger;
@@ -147,36 +155,66 @@ export class AppLogger implements LoggerService {
         });
     }
 
+    /**
+     * Log a message at the INFO level.
+     * @param message - The log message.
+     * @param optionalParams - Additional data or context.
+     */
     log(message: any, ...optionalParams: any[]) {
         const { data, context } = this.parseParams(optionalParams);
         const callerStack = new Error().stack;
         this.logger.info(message, { data, context, callerStack });
     }
 
+    /**
+     * Log a message at the ERROR level.
+     * @param message - The error message.
+     * @param optionalParams - Error object, additional data, or context.
+     */
     error(message: any, ...optionalParams: any[]) {
         const { data, context, errors } = this.parseErrorParams(optionalParams);
         const callerStack = new Error().stack;
         this.logger.error(message, { data, context, errors, callerStack });
     }
 
+    /**
+     * Log a message at the WARN level.
+     * @param message - The warning message.
+     * @param optionalParams - Additional data or context.
+     */
     warn(message: any, ...optionalParams: any[]) {
         const { data, context } = this.parseParams(optionalParams);
         const callerStack = new Error().stack;
         this.logger.warn(message, { data, context, callerStack });
     }
 
+    /**
+     * Log a message at the DEBUG level.
+     * @param message - The debug message.
+     * @param optionalParams - Additional data or context.
+     */
     debug(message: any, ...optionalParams: any[]) {
         const { data, context } = this.parseParams(optionalParams);
         const callerStack = new Error().stack;
         this.logger.debug(message, { data, context, callerStack });
     }
 
+    /**
+     * Log a message at the VERBOSE level.
+     * @param message - The verbose message.
+     * @param optionalParams - Additional data or context.
+     */
     verbose(message: any, ...optionalParams: any[]) {
         const { data, context } = this.parseParams(optionalParams);
         const callerStack = new Error().stack;
         this.logger.verbose(message, { data, context, callerStack });
     }
 
+    /**
+     * Parses optional parameters into data and context.
+     * @param params - Array of optional parameters.
+     * @returns Object containing data and context.
+     */
     private parseParams(params: any[]) {
         let context = '';
         let data = {};
@@ -195,6 +233,11 @@ export class AppLogger implements LoggerService {
         return { data, context };
     }
 
+    /**
+     * Parses optional parameters for error logging.
+     * @param params - Array of optional parameters.
+     * @returns Object containing errors, data, and context.
+     */
     private parseErrorParams(params: any[]) {
         let context = '';
         let errors = null;
