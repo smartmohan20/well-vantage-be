@@ -1,12 +1,18 @@
 import { plainToInstance } from 'class-transformer';
 import { IsEnum, IsNumber, IsString, validateSync } from 'class-validator';
 
+/**
+ * Supported environment types.
+ */
 export enum Environment {
     Development = 'development',
     Test = 'test',
     Production = 'production',
 }
 
+/**
+ * Validates the presence and format of environment variables.
+ */
 export class EnvironmentVariables {
     @IsEnum(Environment)
     NODE_ENV: Environment;
@@ -31,6 +37,12 @@ export class EnvironmentVariables {
 
 }
 
+/**
+ * Validation function for @nestjs/config.
+ * @param config - The raw environment variables.
+ * @returns The validated environment variables object.
+ * @throws Error if validation fails.
+ */
 export function validate(config: Record<string, unknown>) {
     const validatedConfig = plainToInstance(
         EnvironmentVariables,
