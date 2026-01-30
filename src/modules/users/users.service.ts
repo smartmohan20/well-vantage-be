@@ -75,10 +75,14 @@ export class UsersService {
      * @returns The updated user object.
      */
     async update(id: string, data: Partial<User>): Promise<User> {
-        return await this.prisma.user.update({
-            where: { id },
-            data,
-        });
+        try {
+            return await this.prisma.user.update({
+                where: { id },
+                data,
+            });
+        } catch (error) {
+            throw error;
+        }
     }
 }
 

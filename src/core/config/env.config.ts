@@ -44,17 +44,21 @@ export class EnvironmentVariables {
  * @throws Error if validation fails.
  */
 export function validate(config: Record<string, unknown>) {
-    const validatedConfig = plainToInstance(
-        EnvironmentVariables,
-        config,
-        { enableImplicitConversion: true },
-    );
-    const errors = validateSync(validatedConfig, {
-        skipMissingProperties: false,
-    });
+    try {
+        const validatedConfig = plainToInstance(
+            EnvironmentVariables,
+            config,
+            { enableImplicitConversion: true },
+        );
+        const errors = validateSync(validatedConfig, {
+            skipMissingProperties: false,
+        });
 
-    if (errors.length > 0) {
-        throw new Error(errors.toString());
+        if (errors.length > 0) {
+            throw new Error(errors.toString());
+        }
+        return validatedConfig;
+    } catch (error) {
+        throw error;
     }
-    return validatedConfig;
 }

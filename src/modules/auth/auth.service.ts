@@ -78,9 +78,13 @@ export class AuthService {
      * @returns An object containing the access and refresh tokens.
      */
     async login(user: User) {
-        const tokens = await this.getTokens(user.id, user.email);
-        await this.updateRefreshToken(user.id, tokens.refresh_token);
-        return tokens;
+        try {
+            const tokens = await this.getTokens(user.id, user.email);
+            await this.updateRefreshToken(user.id, tokens.refresh_token);
+            return tokens;
+        } catch (error) {
+            throw error;
+        }
     }
 
     /**
@@ -89,10 +93,14 @@ export class AuthService {
      * @param refreshToken - The plain text refresh token.
      */
     async updateRefreshToken(userId: string, refreshToken: string | null) {
-        const hashedRefreshToken = refreshToken ? await hashPassword(refreshToken) : null;
-        await this.usersService.update(userId, {
-            refreshToken: hashedRefreshToken,
-        });
+        try {
+            const hashedRefreshToken = refreshToken ? await hashPassword(refreshToken) : null;
+            await this.usersService.update(userId, {
+                refreshToken: hashedRefreshToken,
+            });
+        } catch (error) {
+            throw error;
+        }
     }
 
     /**
@@ -102,33 +110,37 @@ export class AuthService {
      * @returns An object containing both tokens.
      */
     async getTokens(userId: string, email: string) {
-        const [accessToken, refreshToken] = await Promise.all([
-            this.jwtService.signAsync(
-                {
-                    sub: userId,
-                    email,
-                },
-                {
-                    secret: this.configService.get<string>('JWT_SECRET'),
-                    expiresIn: Number(this.configService.get<string>('JWT_ACCESS_EXPIRATION')) || 900000,
-                },
-            ),
-            this.jwtService.signAsync(
-                {
-                    sub: userId,
-                    email,
-                },
-                {
-                    secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-                    expiresIn: Number(this.configService.get<string>('JWT_REFRESH_EXPIRATION')) || 604800000,
-                },
-            ),
-        ]);
+        try {
+            const [accessToken, refreshToken] = await Promise.all([
+                this.jwtService.signAsync(
+                    {
+                        sub: userId,
+                        email,
+                    },
+                    {
+                        secret: this.configService.get<string>('JWT_SECRET'),
+                        expiresIn: Number(this.configService.get<string>('JWT_ACCESS_EXPIRATION')) || 900000,
+                    },
+                ),
+                this.jwtService.signAsync(
+                    {
+                        sub: userId,
+                        email,
+                    },
+                    {
+                        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+                        expiresIn: Number(this.configService.get<string>('JWT_REFRESH_EXPIRATION')) || 604800000,
+                    },
+                ),
+            ]);
 
-        return {
-            access_token: accessToken,
-            refresh_token: refreshToken,
-        };
+            return {
+                access_token: accessToken,
+                refresh_token: refreshToken,
+            };
+        } catch (error) {
+            throw error;
+        }
     }
 
     /**
@@ -138,22 +150,26 @@ export class AuthService {
      * @returns An object containing the new tokens.
      */
     async refreshTokens(userId: string, refreshToken: string) {
-        const user = await this.usersService.findById(userId);
-        if (!user || !user.refreshToken) {
-            throw new ForbiddenException('Access Denied');
-        }
+        try {
+            const user = await this.usersService.findById(userId);
+            if (!user || !user.refreshToken) {
+                throw new ForbiddenException('Access Denied');
+            }
 
-        const refreshTokenMatches = await comparePassword(
-            refreshToken,
-            user.refreshToken,
-        );
-        if (!refreshTokenMatches) {
-            throw new ForbiddenException('Access Denied');
-        }
+            const refreshTokenMatches = await comparePassword(
+                refreshToken,
+                user.refreshToken,
+            );
+            if (!refreshTokenMatches) {
+                throw new ForbiddenException('Access Denied');
+            }
 
-        const tokens = await this.getTokens(user.id, user.email);
-        await this.updateRefreshToken(user.id, tokens.refresh_token);
-        return tokens;
+            const tokens = await this.getTokens(user.id, user.email);
+            await this.updateRefreshToken(user.id, tokens.refresh_token);
+            return tokens;
+        } catch (error) {
+            throw error;
+        }
     }
 
     /**
@@ -161,7 +177,11 @@ export class AuthService {
      * @param userId - The ID of the user.
      */
     async logout(userId: string) {
-        await this.usersService.update(userId, { refreshToken: null });
+        try {
+            await this.usersService.update(userId, { refreshToken: null });
+        } catch (error) {
+            throw error;
+        }
     }
 }
 

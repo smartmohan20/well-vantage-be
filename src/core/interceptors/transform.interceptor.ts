@@ -28,6 +28,10 @@ export class TransformInterceptor<T>
         context: ExecutionContext,
         next: CallHandler,
     ): Observable<Response<T>> {
-        return next.handle().pipe(map((data) => ({ data })));
+        try {
+            return next.handle().pipe(map((data) => ({ data })));
+        } catch (error) {
+            throw error;
+        }
     }
 }

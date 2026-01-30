@@ -27,7 +27,11 @@ export class AuthController {
      */
     @Post('signup')
     async signup(@Body() createUserDto: CreateUserDto) {
-        return this.authService.register(createUserDto);
+        try {
+            return await this.authService.register(createUserDto);
+        } catch (error) {
+            throw error;
+        }
     }
 
     /**
@@ -38,14 +42,18 @@ export class AuthController {
      */
     @Post('login')
     async login(@Body() loginDto: LoginDto) {
-        const user = await this.authService.validateUser(
-            loginDto.email,
-            loginDto.password,
-        );
-        if (!user) {
-            throw new UnauthorizedException('Invalid credentials');
+        try {
+            const user = await this.authService.validateUser(
+                loginDto.email,
+                loginDto.password,
+            );
+            if (!user) {
+                throw new UnauthorizedException('Invalid credentials');
+            }
+            return await this.authService.login(user);
+        } catch (error) {
+            throw error;
         }
-        return this.authService.login(user);
     }
 
     /**
@@ -56,9 +64,13 @@ export class AuthController {
     @UseGuards(AuthGuard('jwt-refresh'))
     @Post('refresh')
     async refresh(@Req() req) {
-        const userId = req.user.sub;
-        const refreshToken = req.user.refreshToken;
-        return this.authService.refreshTokens(userId, refreshToken);
+        try {
+            const userId = req.user.sub;
+            const refreshToken = req.user.refreshToken;
+            return await this.authService.refreshTokens(userId, refreshToken);
+        } catch (error) {
+            throw error;
+        }
     }
 
     /**
@@ -68,7 +80,11 @@ export class AuthController {
     @UseGuards(AuthGuard('jwt'))
     @Get('logout')
     async logout(@Req() req) {
-        return this.authService.logout(req.user.id);
+        try {
+            return await this.authService.logout(req.user.id);
+        } catch (error) {
+            throw error;
+        }
     }
 
     /**
@@ -89,12 +105,16 @@ export class AuthController {
     @Get('google/callback')
     @UseGuards(AuthGuard('google'))
     async googleAuthRedirect(@Req() req) {
-        const name = `${req.user.firstName} ${req.user.lastName}`.trim();
-        const user = await this.authService.validateGoogleUser({
-            email: req.user.email,
-            googleId: req.user.googleId,
-            name: name,
-        });
-        return this.authService.login(user);
+        try {
+            const name = `${req.user.firstName} ${req.user.lastName}`.trim();
+            const user = await this.authService.validateGoogleUser({
+                email: req.user.email,
+                googleId: req.user.googleId,
+                name: name,
+            });
+            return await this.authService.login(user);
+        } catch (error) {
+            throw error;
+        }
     }
 }

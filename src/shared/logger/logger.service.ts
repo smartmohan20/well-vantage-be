@@ -151,65 +151,93 @@ export class AppLogger implements LoggerService {
     }
 
     log(message: any, ...optionalParams: any[]) {
-        const { data, context } = this.parseParams(optionalParams);
-        const callerStack = new Error().stack;
-        this.logger.info(message, { data, context, callerStack });
+        try {
+            const { data, context } = this.parseParams(optionalParams);
+            const callerStack = new Error().stack;
+            this.logger.info(message, { data, context, callerStack });
+        } catch (error) {
+            console.error('Logger failed to log:', error);
+        }
     }
 
     error(message: any, ...optionalParams: any[]) {
-        const { data, context, errors } = this.parseErrorParams(optionalParams);
-        const callerStack = new Error().stack;
-        this.logger.error(message, { data, context, errors, callerStack });
+        try {
+            const { data, context, errors } = this.parseErrorParams(optionalParams);
+            const callerStack = new Error().stack;
+            this.logger.error(message, { data, context, errors, callerStack });
+        } catch (error) {
+            console.error('Logger failed to log error:', error);
+        }
     }
 
     warn(message: any, ...optionalParams: any[]) {
-        const { data, context } = this.parseParams(optionalParams);
-        const callerStack = new Error().stack;
-        this.logger.warn(message, { data, context, callerStack });
+        try {
+            const { data, context } = this.parseParams(optionalParams);
+            const callerStack = new Error().stack;
+            this.logger.warn(message, { data, context, callerStack });
+        } catch (error) {
+            console.error('Logger failed to log warning:', error);
+        }
     }
 
     debug(message: any, ...optionalParams: any[]) {
-        const { data, context } = this.parseParams(optionalParams);
-        const callerStack = new Error().stack;
-        this.logger.debug(message, { data, context, callerStack });
+        try {
+            const { data, context } = this.parseParams(optionalParams);
+            const callerStack = new Error().stack;
+            this.logger.debug(message, { data, context, callerStack });
+        } catch (error) {
+            console.error('Logger failed to log debug:', error);
+        }
     }
 
     verbose(message: any, ...optionalParams: any[]) {
-        const { data, context } = this.parseParams(optionalParams);
-        const callerStack = new Error().stack;
-        this.logger.verbose(message, { data, context, callerStack });
+        try {
+            const { data, context } = this.parseParams(optionalParams);
+            const callerStack = new Error().stack;
+            this.logger.verbose(message, { data, context, callerStack });
+        } catch (error) {
+            console.error('Logger failed to log verbose:', error);
+        }
     }
 
     private parseParams(params: any[]) {
-        let context = '';
-        let data = {};
-        if (params.length > 0) {
-            const lastParam = params[params.length - 1];
-            if (typeof lastParam === 'string' && params.length > 0) {
-                context = lastParam;
-                if (params.length > 1) data = params[0];
-            } else {
-                data = params[0];
+        try {
+            let context = '';
+            let data = {};
+            if (params.length > 0) {
+                const lastParam = params[params.length - 1];
+                if (typeof lastParam === 'string' && params.length > 0) {
+                    context = lastParam;
+                    if (params.length > 1) data = params[0];
+                } else {
+                    data = params[0];
+                }
             }
+            return { data, context };
+        } catch (error) {
+            return { data: {}, context: '' };
         }
-        return { data, context };
     }
 
     private parseErrorParams(params: any[]) {
-        let context = '';
-        let errors = null;
-        let data = {};
-        if (params.length > 0) {
-            const lastParam = params[params.length - 1];
-            if (typeof lastParam === 'string' && params.length > 1) {
-                context = lastParam;
-                errors = params[0];
-                if (params.length > 2) data = params[1];
-            } else {
-                errors = params[0];
-                if (params.length > 1) data = params[1];
+        try {
+            let context = '';
+            let errors = null;
+            let data = {};
+            if (params.length > 0) {
+                const lastParam = params[params.length - 1];
+                if (typeof lastParam === 'string' && params.length > 1) {
+                    context = lastParam;
+                    errors = params[0];
+                    if (params.length > 2) data = params[1];
+                } else {
+                    errors = params[0];
+                    if (params.length > 1) data = params[1];
+                }
             }
+            return { errors, data, context };
+        } catch (error) {
+            return { errors: null, data: {}, context: '' };
         }
-        return { errors, data, context };
     }
 }
