@@ -67,5 +67,18 @@ export class UsersService {
             return null;
         }
     }
+
+    /**
+     * Updates an existing user's information.
+     * @param id - The unique ID of the user to update.
+     * @param data - The data to update.
+     * @returns The updated user object.
+     */
+    async update(id: string, data: Partial<User>): Promise<User> {
+        return await this.prisma.user.update({
+            where: { id },
+            data,
+        });
+    }
 }
 

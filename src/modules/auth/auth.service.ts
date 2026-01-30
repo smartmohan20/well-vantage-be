@@ -1,10 +1,11 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import { comparePassword } from '../../shared/utils/hash.util';
+import { comparePassword, hashPassword } from '../../shared/utils/hash.util';
 import { User } from '@prisma/client';
 import * as crypto from 'crypto';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * Service responsible for authentication-related logic.
@@ -15,6 +16,7 @@ export class AuthService {
     constructor(
         private usersService: UsersService,
         private jwtService: JwtService,
+        private configService: ConfigService,
     ) { }
 
     /**
@@ -71,19 +73,95 @@ export class AuthService {
     }
 
     /**
-     * Generates a JWT access token for the user.
-     * @param user - The user object to generate the token for.
-     * @returns An object containing the access token.
+     * Handles the login logic by generating tokens and updating the refresh token in the database.
+     * @param user - The user object.
+     * @returns An object containing the access and refresh tokens.
      */
     async login(user: User) {
-        try {
-            const payload = { email: user.email, sub: user.id };
-            return {
-                access_token: this.jwtService.sign(payload),
-            };
-        } catch (error) {
-            throw error;
+        const tokens = await this.getTokens(user.id, user.email);
+        await this.updateRefreshToken(user.id, tokens.refresh_token);
+        return tokens;
+    }
+
+    /**
+     * Updates the user's refresh token in the database after hashing it.
+     * @param userId - The ID of the user.
+     * @param refreshToken - The plain text refresh token.
+     */
+    async updateRefreshToken(userId: string, refreshToken: string | null) {
+        const hashedRefreshToken = refreshToken ? await hashPassword(refreshToken) : null;
+        await this.usersService.update(userId, {
+            refreshToken: hashedRefreshToken,
+        });
+    }
+
+    /**
+     * Generates a pair of access and refresh tokens.
+     * @param userId - The ID of the user.
+     * @param email - The email of the user.
+     * @returns An object containing both tokens.
+     */
+    async getTokens(userId: string, email: string) {
+        const [accessToken, refreshToken] = await Promise.all([
+            this.jwtService.signAsync(
+                {
+                    sub: userId,
+                    email,
+                },
+                {
+                    secret: this.configService.get<string>('JWT_SECRET'),
+                    expiresIn: Number(this.configService.get<string>('JWT_ACCESS_EXPIRATION')) || 900000,
+                },
+            ),
+            this.jwtService.signAsync(
+                {
+                    sub: userId,
+                    email,
+                },
+                {
+                    secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+                    expiresIn: Number(this.configService.get<string>('JWT_REFRESH_EXPIRATION')) || 604800000,
+                },
+            ),
+        ]);
+
+        return {
+            access_token: accessToken,
+            refresh_token: refreshToken,
+        };
+    }
+
+    /**
+     * Refreshes the access token using a valid refresh token.
+     * @param userId - The ID of the user.
+     * @param refreshToken - The refresh token provided by the client.
+     * @returns An object containing the new tokens.
+     */
+    async refreshTokens(userId: string, refreshToken: string) {
+        const user = await this.usersService.findById(userId);
+        if (!user || !user.refreshToken) {
+            throw new ForbiddenException('Access Denied');
         }
+
+        const refreshTokenMatches = await comparePassword(
+            refreshToken,
+            user.refreshToken,
+        );
+        if (!refreshTokenMatches) {
+            throw new ForbiddenException('Access Denied');
+        }
+
+        const tokens = await this.getTokens(user.id, user.email);
+        await this.updateRefreshToken(user.id, tokens.refresh_token);
+        return tokens;
+    }
+
+    /**
+     * Logs out the user by clearing their refresh token from the database.
+     * @param userId - The ID of the user.
+     */
+    async logout(userId: string) {
+        await this.usersService.update(userId, { refreshToken: null });
     }
 }
 

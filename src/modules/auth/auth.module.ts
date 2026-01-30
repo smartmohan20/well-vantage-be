@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from '../users/users.module';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { PassportModule } from '@nestjs/passport';
 
 /**
@@ -20,12 +21,12 @@ import { PassportModule } from '@nestjs/passport';
             imports: [ConfigModule],
             useFactory: async (configService: ConfigService) => ({
                 secret: configService.get<string>('JWT_SECRET'),
-                signOptions: { expiresIn: '60m' },
+                signOptions: { expiresIn: Number(configService.get<string>('JWT_ACCESS_EXPIRATION')) || 900000 },
             }),
             inject: [ConfigService],
         }),
     ],
-    providers: [AuthService, JwtStrategy, GoogleStrategy],
+    providers: [AuthService, JwtStrategy, JwtRefreshStrategy, GoogleStrategy],
     controllers: [AuthController],
     exports: [AuthService],
 })
