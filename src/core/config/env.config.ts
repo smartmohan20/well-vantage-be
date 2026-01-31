@@ -24,7 +24,19 @@ export class EnvironmentVariables {
     DATABASE_URL: string;
 
     @IsString()
+    ALLOWED_ORIGINS: string;
+
+    @IsString()
     JWT_SECRET: string;
+
+    @IsString()
+    JWT_REFRESH_SECRET: string;
+
+    @IsNumber()
+    JWT_ACCESS_EXPIRATION: number;
+
+    @IsNumber()
+    JWT_REFRESH_EXPIRATION: number;
 
     @IsString()
     GOOGLE_CLIENT_ID: string;
@@ -35,11 +47,23 @@ export class EnvironmentVariables {
     @IsString()
     GOOGLE_CALLBACK_URL: string;
 
+    @IsString()
+    SESSION_SECRET: string;
+
+    @IsString()
+    LOG_LEVEL: string;
+
     @IsBoolean()
     LOG_REQUESTS: boolean;
 
     @IsBoolean()
     LOG_RESPONSES: boolean;
+
+    @IsNumber()
+    RATE_LIMIT_WINDOW_MS: number;
+
+    @IsNumber()
+    RATE_LIMIT_MAX: number;
 }
 
 /**

@@ -17,11 +17,11 @@ export const JwtUtil = {
             const [accessToken, refreshToken] = await Promise.all([
                 jwtService.signAsync(payload, {
                     secret: configService.get<string>('JWT_SECRET'),
-                    expiresIn: Number(configService.get<string>('JWT_ACCESS_EXPIRATION')) || 900000,
+                    expiresIn: configService.get<number>('JWT_ACCESS_EXPIRATION') || 900000,
                 }),
                 jwtService.signAsync(payload, {
                     secret: configService.get<string>('JWT_REFRESH_SECRET'),
-                    expiresIn: Number(configService.get<string>('JWT_REFRESH_EXPIRATION')) || 604800000,
+                    expiresIn: configService.get<number>('JWT_REFRESH_EXPIRATION') || 604800000,
                 }),
             ]);
 

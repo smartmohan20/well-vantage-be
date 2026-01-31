@@ -57,7 +57,7 @@ export class AuthService {
      * @returns The Google OAuth URL.
      */
     getGoogleAuthUrl() {
-        return GoogleAuthUtil.getAuthUrl();
+        return GoogleAuthUtil.getAuthUrl(this.configService);
     }
 
     /**
@@ -94,7 +94,7 @@ export class AuthService {
      */
     async validateGoogleIdToken(idToken: string) {
         try {
-            const payload = await GoogleAuthUtil.verifyIdToken(idToken);
+            const payload = await GoogleAuthUtil.verifyIdToken(this.configService, idToken);
             const { email, sub: googleId, name } = payload;
 
             return await this.validateGoogleUser({
