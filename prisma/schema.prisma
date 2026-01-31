@@ -20,7 +20,7 @@ model User {
   auth         Auth?
   bookings     Booking[]
   memberships  Membership[]
-  businesses   Business[]
+
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 }
@@ -49,11 +49,9 @@ model Business {
   mapUrl      String?
   latitude    Float?
   longitude   Float?
-  owner       User         @relation(fields: [ownerId], references: [id])
-  ownerId     String
   memberships Membership[]
   createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  updatedAt   DateTime     @updatedAt  
 }
 
 model Membership {

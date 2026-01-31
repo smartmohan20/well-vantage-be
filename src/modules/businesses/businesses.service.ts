@@ -13,7 +13,6 @@ export class BusinessesService {
                 const business = await tx.business.create({
                     data: {
                         ...createBusinessDto,
-                        ownerId: userId,
                         memberships: {
                             create: {
                                 userId,
@@ -23,7 +22,6 @@ export class BusinessesService {
                     },
                     include: {
                         memberships: true,
-                        owner: true,
                     },
                 });
 
@@ -37,7 +35,7 @@ export class BusinessesService {
     async findAll() {
         return this.prisma.business.findMany({
             include: {
-                owner: true,
+
                 memberships: {
                     include: {
                         user: true,
@@ -51,7 +49,7 @@ export class BusinessesService {
         return this.prisma.business.findUnique({
             where: { id },
             include: {
-                owner: true,
+
                 memberships: {
                     include: {
                         user: true,
