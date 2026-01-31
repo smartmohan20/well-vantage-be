@@ -4,11 +4,14 @@ import { SetAvailabilityDto } from './dto/set-availability.dto';
 import { BookSlotsDto } from './dto/book-slots.dto';
 import { ResponseMessage } from '../../core/decorators/response-message.decorator';
 import { AuthGuard } from '@nestjs/passport';
+import { PermissionsGuard } from '../../core/permissions/permissions.guard';
+import { RequirePermissions } from '../../core/decorators/permissions.decorator';
 
 /**
  * Controller for workout-related endpoints.
  */
 @Controller('workouts')
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 export class WorkoutsController {
     constructor(private readonly workoutsService: WorkoutsService) { }
 
@@ -18,7 +21,7 @@ export class WorkoutsController {
      * @returns The created session and its availabilities.
      */
     @ResponseMessage('Workout session availability set successfully')
-    @UseGuards(AuthGuard('jwt'))
+    @RequirePermissions('MANAGE_GYM')
     @Post('availability')
     async setAvailability(@Body() setAvailabilityDto: SetAvailabilityDto) {
         try {
@@ -35,7 +38,7 @@ export class WorkoutsController {
      * @returns The created bookings.
      */
     @ResponseMessage('Slots booked successfully')
-    @UseGuards(AuthGuard('jwt'))
+    @RequirePermissions('BOOK_SESSION')
     @Post('book')
     async bookSlots(@Req() req, @Body() bookSlotsDto: BookSlotsDto) {
         try {
