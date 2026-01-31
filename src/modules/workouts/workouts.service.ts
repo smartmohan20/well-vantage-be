@@ -125,5 +125,53 @@ export class WorkoutsService {
         }
     }
 
+    /**
+     * Retrieves available slots for a gym.
+     * @param businessId - The ID of the gym.
+     * @param date - Optional specific date to filter slots.
+     * @returns List of available slots.
+     */
+    async getAvailableSlots(businessId: string, date?: string) {
+        try {
+            const whereClause: any = {
+                isBooked: false,
+                sessionAvailability: {
+                    workoutSession: {
+                        businessId: businessId,
+                    },
+                },
+            };
 
+            if (date) {
+                const startOfDay = new Date(date);
+                startOfDay.setHours(0, 0, 0, 0);
+
+                const endOfDay = new Date(date);
+                endOfDay.setHours(23, 59, 59, 999);
+
+                whereClause.startTime = {
+                    gte: startOfDay,
+                    lte: endOfDay,
+                };
+            }
+
+            return await this.prisma.slot.findMany({
+                where: whereClause,
+                include: {
+                    sessionAvailability: {
+                        include: {
+                            workoutSession: true,
+                        },
+                    },
+                },
+                orderBy: {
+                    startTime: 'asc',
+                },
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
 }
+
+

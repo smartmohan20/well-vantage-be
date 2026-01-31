@@ -70,5 +70,22 @@ export class WorkoutsController {
         }
     }
 
-
+    /**
+     * Endpoint to get available workout slots for a particular gym.
+     * @param businessId - The ID of the gym.
+     * @param date - Optional date filter.
+     * @returns List of available slots.
+     */
+    @ResponseMessage('Available slots retrieved successfully')
+    @Get('business/:businessId/slots/available')
+    async getAvailableSlots(
+        @Param('businessId') businessId: string,
+        @Query('date') date?: string,
+    ) {
+        try {
+            return await this.workoutsService.getAvailableSlots(businessId, date);
+        } catch (error) {
+            throw error;
+        }
+    }
 }
