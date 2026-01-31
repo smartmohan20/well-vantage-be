@@ -14,14 +14,19 @@ export const JwtUtil = {
         payload: { sub: string; email: string },
     ) => {
         try {
+            const jwtSecret = configService.get<string>('JWT_SECRET');
+            const jwtAccessExpiration = configService.get<number>('JWT_ACCESS_EXPIRATION') || 900000;
+            const jwtRefreshSecret = configService.get<string>('JWT_REFRESH_SECRET');
+            const jwtRefreshExpiration = configService.get<number>('JWT_REFRESH_EXPIRATION') || 604800000;
+
             const [accessToken, refreshToken] = await Promise.all([
                 jwtService.signAsync(payload, {
-                    secret: configService.get<string>('JWT_SECRET'),
-                    expiresIn: configService.get<number>('JWT_ACCESS_EXPIRATION') || 900000,
+                    secret: jwtSecret,
+                    expiresIn: jwtAccessExpiration,
                 }),
                 jwtService.signAsync(payload, {
-                    secret: configService.get<string>('JWT_REFRESH_SECRET'),
-                    expiresIn: configService.get<number>('JWT_REFRESH_EXPIRATION') || 604800000,
+                    secret: jwtRefreshSecret,
+                    expiresIn: jwtRefreshExpiration,
                 }),
             ]);
 

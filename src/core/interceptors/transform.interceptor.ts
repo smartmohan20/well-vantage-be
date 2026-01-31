@@ -56,8 +56,11 @@ export class TransformInterceptor<T>
             context.getHandler(),
         );
 
+        const logRequests = this.configService.get<boolean>('LOG_REQUESTS');
+        const logResponses = this.configService.get<boolean>('LOG_RESPONSES');
+
         // Log request if enabled
-        if (this.configService.get<boolean>('LOG_REQUESTS')) {
+        if (logRequests) {
             this.logger.log(`Incoming Request: ${method} ${url}`, {
                 body,
                 query,
@@ -91,7 +94,7 @@ export class TransformInterceptor<T>
             tap((transformedData) => {
                 const duration = Date.now() - startTime;
                 // Log response if enabled
-                if (this.configService.get<boolean>('LOG_RESPONSES')) {
+                if (logResponses) {
                     this.logger.log(`Outgoing Response: ${method} ${url} - ${duration}ms`, {
                         statusCode: transformedData.statusCode,
                         response: transformedData,

@@ -61,6 +61,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
             };
 
             // Log the error
+            const logResponses = this.configService.get<boolean>('LOG_RESPONSES');
             const { method, url } = request;
             const logMessage = `Exception: ${method} ${url} - ${httpStatus}`;
 
@@ -68,7 +69,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
                 this.logger.error(logMessage, (exception as any).stack, {
                     path: httpAdapter.getRequestUrl(request),
                 });
-            } else if (this.configService.get<boolean>('LOG_RESPONSES')) {
+            } else if (logResponses) {
                 this.logger.warn(logMessage, responseBody);
             }
 

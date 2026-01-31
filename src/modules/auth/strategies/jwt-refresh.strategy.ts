@@ -11,9 +11,10 @@ import { Request } from 'express';
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
     constructor(private configService: ConfigService) {
+        const jwtRefreshSecret = configService.get<string>('JWT_REFRESH_SECRET');
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            secretOrKey: configService.get<string>('JWT_REFRESH_SECRET'),
+            secretOrKey: jwtRefreshSecret,
             passReqToCallback: true,
         });
     }

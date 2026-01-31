@@ -21,20 +21,27 @@ async function bootstrap() {
 
         const configService = app.get(ConfigService);
         const logger = app.get(AppLogger);
+
+        // Extract configuration values
+        const allowedOrigins = configService.get<string>('ALLOWED_ORIGINS')?.split(',') || '*';
+        const rateLimitWindow = configService.get<number>('RATE_LIMIT_WINDOW_MS') || 15 * 60 * 1000;
+        const rateLimitMax = configService.get<number>('RATE_LIMIT_MAX') || 100;
+        const sessionSecret = configService.get<string>('SESSION_SECRET') || 'secret';
+        const isProduction = configService.get<string>('NODE_ENV') === 'production';
+        const port = configService.get<number>('PORT') || 3000;
+
         app.useLogger(logger);
 
         // Security Middlewares
         app.use(helmet());
         app.enableCors({
-            origin: configService.get('ALLOWED_ORIGINS')?.split(',') || '*',
+            origin: allowedOrigins,
             methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
             credentials: true,
         });
 
         // Rate Limiting
-        const windowMs = configService.get<number>('RATE_LIMIT_WINDOW_MS') || 15 * 60 * 1000;
-        const limit = configService.get<number>('RATE_LIMIT_MAX') || 100;
-        app.use(rateLimitConfig(windowMs, limit));
+        app.use(rateLimitConfig(rateLimitWindow, rateLimitMax));
 
         // Utility Middlewares
         app.use(compression());
@@ -44,11 +51,11 @@ async function bootstrap() {
         // Session Configuration
         app.use(
             session({
-                secret: configService.get('SESSION_SECRET') || 'secret',
+                secret: sessionSecret,
                 resave: false,
                 saveUninitialized: false,
                 cookie: {
-                    secure: configService.get('NODE_ENV') === 'production',
+                    secure: isProduction,
                     httpOnly: true,
                     maxAge: 24 * 60 * 60 * 1000, // 24 hours
                 },
@@ -71,8 +78,6 @@ async function bootstrap() {
             forbidNonWhitelisted: true,
             transform: true,
         }));
-
-        const port = configService.get('PORT') || 3000;
 
         await app.listen(port);
 
