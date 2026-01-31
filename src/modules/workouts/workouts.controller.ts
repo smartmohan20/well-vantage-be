@@ -1,6 +1,7 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { WorkoutsService } from './workouts.service';
 import { SetAvailabilityDto } from './dto/set-availability.dto';
+import { BookSlotsDto } from './dto/book-slots.dto';
 import { ResponseMessage } from '../../core/decorators/response-message.decorator';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -22,6 +23,24 @@ export class WorkoutsController {
     async setAvailability(@Body() setAvailabilityDto: SetAvailabilityDto) {
         try {
             return await this.workoutsService.setAvailability(setAvailabilityDto);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * Endpoint for a client to book one or more slots.
+     * @param req - The request object containing user payload.
+     * @param bookSlotsDto - List of slot IDs to book.
+     * @returns The created bookings.
+     */
+    @ResponseMessage('Slots booked successfully')
+    @UseGuards(AuthGuard('jwt'))
+    @Post('book')
+    async bookSlots(@Req() req, @Body() bookSlotsDto: BookSlotsDto) {
+        try {
+            const userId = req.user.id;
+            return await this.workoutsService.bookSlots(userId, bookSlotsDto);
         } catch (error) {
             throw error;
         }
