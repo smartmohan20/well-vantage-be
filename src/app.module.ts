@@ -5,6 +5,7 @@ import { LoggerModule } from './shared/logger/logger.module';
 import { PrismaModule } from './shared/prisma/prisma.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { WorkoutsModule } from './modules/workouts/workouts.module';
 import { AllExceptionsFilter } from './core/filters/all-exceptions.filter';
 import { TransformInterceptor } from './core/interceptors/transform.interceptor';
 import { validate } from './core/config/env.config';
@@ -23,6 +24,7 @@ import { validate } from './core/config/env.config';
         PrismaModule,
         UsersModule,
         AuthModule,
+        WorkoutsModule,
     ],
     providers: [
         {
