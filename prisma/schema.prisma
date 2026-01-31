@@ -17,3 +17,21 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
+
+model WorkoutSession {
+  id             String                @id @default(uuid())
+  name           String
+  availabilities SessionAvailability[]
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+}
+
+model SessionAvailability {
+  id               String         @id @default(uuid())
+  startTime        DateTime
+  endTime          DateTime
+  workoutSession   WorkoutSession @relation(fields: [workoutSessionId], references: [id])
+  workoutSessionId String
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
