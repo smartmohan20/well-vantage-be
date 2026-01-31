@@ -8,15 +8,32 @@ The core backend services for **WellVantage**, providing robust APIs for member 
 
 ---
 
-## 🚀 Status
-This project is currently in the **Development Stage**. Features and API structures are subject to change as we build out the core functionality.
+## 🚀 Project Status
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Status-Active%20Development-success?style=for-the-badge&logo=github" alt="Active Development" />
+</p>
+
+| Category | Status |
+| :--- | :--- |
+| **Development** | ✅ Active |
+| **API Version** | 🏗️ v1.0.0 |
+
+---
 
 ## 🛠️ Technology Stack
-- **Framework:** NestJS (Node.js)
-- **Language:** TypeScript
-- **Database:** PostgreSQL with Prisma ORM
-- **Authentication:** Passport.js (JWT & Google OAuth 2.0)
-- **Utilities:** Class Validator, Helmet, Winston Logging, Compression
+
+| Category | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Framework** | ![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=flat-square&logo=nestjs&logoColor=white) | Enterprise-grade backend architecture |
+| **ORM** | ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white) | Type-safe database modeling & queries |
+| **Database** | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white) | Reliable relational data storage |
+| **Language** | ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white) | Productive & safe developer experience |
+| **Security** | ![Passport](https://img.shields.io/badge/Passport-34E27A?style=flat-square&logo=passport&logoColor=white) | Strategic Auth guards & strategies |
+| **Middlewares** | ![Helmet](https://img.shields.io/badge/Helmet-000000?style=flat-square&logo=helmet&logoColor=white) ![Compression](https://img.shields.io/badge/Compression-gray?style=flat-square) | Performance & Security hardening |
+| **Validation** | ![Class Validator](https://img.shields.io/badge/Class%20Validator-D0021B?style=flat-square) | Schema-based payload validation |
+| **Logging** | ![Winston](https://img.shields.io/badge/Winston-5A6366?style=flat-square) | Comprehensive application telemetry |
+
 
 ## 📖 Documentation
 Detailed documentation for specific modules can be found in the `docs/` folder:
