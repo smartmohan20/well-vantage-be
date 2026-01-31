@@ -12,6 +12,7 @@ import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ResponseMessage } from '../../core/decorators/response-message.decorator';
+import { GoogleSigninDto } from './dto/google-signin.dto';
 
 /**
  * Controller responsible for handling authentication requests.
@@ -93,7 +94,20 @@ export class AuthController {
     }
 
     /**
-     * Endpoint to initiate Google OAuth login flow.
+     * Endpoint to get Google OAuth URL.
+     * This is useful for front-end applications to initiate the flow.
+     * @returns JSON containing the Google Auth URL.
+     */
+    @ResponseMessage('Google Auth URL generated')
+    @Get('google/url')
+    async getGoogleAuthUrl() {
+        return {
+            url: this.authService.getGoogleAuthUrl(),
+        };
+    }
+
+    /**
+     * Endpoint to initiate Google OAuth login flow (standard passport redirect).
      */
     @Get('google')
     @UseGuards(AuthGuard('google'))
@@ -107,6 +121,7 @@ export class AuthController {
      * @param req - The request object containing user details from Google.
      * @returns An object containing the access and refresh tokens.
      */
+    @ResponseMessage('Google login successful')
     @Get('google/callback')
     @UseGuards(AuthGuard('google'))
     async googleAuthRedirect(@Req() req) {
@@ -117,6 +132,24 @@ export class AuthController {
                 googleId: req.user.googleId,
                 name: name,
             });
+            return await this.authService.login(user);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * Endpoint for Google Signin using an ID token (best for Mobile apps).
+     * @param googleSigninDto - The ID token from Google SDK.
+     * @returns An object containing the access and refresh tokens.
+     */
+    @ResponseMessage('Google login successful')
+    @Post('google/signin')
+    async googleSignin(@Body() googleSigninDto: GoogleSigninDto) {
+        try {
+            const user = await this.authService.validateGoogleIdToken(
+                googleSigninDto.idToken,
+            );
             return await this.authService.login(user);
         } catch (error) {
             throw error;

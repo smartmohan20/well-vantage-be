@@ -4,8 +4,10 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { comparePassword, hashPassword } from '../../shared/utils/hash.util';
 import { User } from '@prisma/client';
-import * as crypto from 'crypto';
+import { StringUtil } from '../../shared/utils/string.util';
 import { ConfigService } from '@nestjs/config';
+import { GoogleAuthUtil } from '../../shared/utils/google-auth.util';
+import { JwtUtil } from '../../shared/utils/jwt.util';
 
 /**
  * Service responsible for authentication-related logic.
@@ -51,6 +53,14 @@ export class AuthService {
     }
 
     /**
+     * Generates Google OAuth URL for the frontend.
+     * @returns The Google OAuth URL.
+     */
+    getGoogleAuthUrl() {
+        return GoogleAuthUtil.getAuthUrl();
+    }
+
+    /**
      * Validates or creates a user based on Google OAuth details.
      * @param details - Google user details (email, googleId, name).
      * @returns The user object.
@@ -59,16 +69,41 @@ export class AuthService {
         try {
             const user = await this.usersService.findByEmail(details.email);
             if (user) {
+                // Update googleId if not present (in case of manual signup earlier)
+                if (!user.googleId) {
+                    await this.usersService.update(user.id, { googleId: details.googleId });
+                }
                 return user;
             }
             return await this.usersService.create({
                 email: details.email,
-                password: crypto.randomBytes(16).toString('hex'),
+                password: StringUtil.generateRandomString(16),
                 googleId: details.googleId,
                 name: details.name,
             });
         } catch (error) {
             throw error;
+        }
+    }
+
+    /**
+     * Validates Google ID token from mobile or web direct login.
+     * Uses the reusable googleClient instance.
+     * @param idToken - The ID token from Google.
+     * @returns The user object.
+     */
+    async validateGoogleIdToken(idToken: string) {
+        try {
+            const payload = await GoogleAuthUtil.verifyIdToken(idToken);
+            const { email, sub: googleId, name } = payload;
+
+            return await this.validateGoogleUser({
+                email: email!,
+                googleId,
+                name: name!,
+            });
+        } catch (error) {
+            throw new UnauthorizedException(error.message || 'Google authentication failed');
         }
     }
 
@@ -110,37 +145,10 @@ export class AuthService {
      * @returns An object containing both tokens.
      */
     async getTokens(userId: string, email: string) {
-        try {
-            const [accessToken, refreshToken] = await Promise.all([
-                this.jwtService.signAsync(
-                    {
-                        sub: userId,
-                        email,
-                    },
-                    {
-                        secret: this.configService.get<string>('JWT_SECRET'),
-                        expiresIn: Number(this.configService.get<string>('JWT_ACCESS_EXPIRATION')) || 900000,
-                    },
-                ),
-                this.jwtService.signAsync(
-                    {
-                        sub: userId,
-                        email,
-                    },
-                    {
-                        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-                        expiresIn: Number(this.configService.get<string>('JWT_REFRESH_EXPIRATION')) || 604800000,
-                    },
-                ),
-            ]);
-
-            return {
-                access_token: accessToken,
-                refresh_token: refreshToken,
-            };
-        } catch (error) {
-            throw error;
-        }
+        return JwtUtil.generateTokens(this.jwtService, this.configService, {
+            sub: userId,
+            email,
+        });
     }
 
     /**
