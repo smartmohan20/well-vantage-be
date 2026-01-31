@@ -11,6 +11,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { ResponseMessage } from '../../core/decorators/response-message.decorator';
 
 /**
  * Controller responsible for handling authentication requests.
@@ -25,6 +26,7 @@ export class AuthController {
      * @param createUserDto - User creation data.
      * @returns The newly created user.
      */
+    @ResponseMessage('User registered successfully')
     @Post('signup')
     async signup(@Body() createUserDto: CreateUserDto) {
         try {
@@ -40,6 +42,7 @@ export class AuthController {
      * @returns An object containing the access and refresh tokens.
      * @throws UnauthorizedException if credentials are invalid.
      */
+    @ResponseMessage('Login successful')
     @Post('login')
     async login(@Body() loginDto: LoginDto) {
         try {
@@ -61,6 +64,7 @@ export class AuthController {
      * @param req - The request object containing user payload and refresh token.
      * @returns An object containing the new access and refresh tokens.
      */
+    @ResponseMessage('Tokens refreshed successfully')
     @UseGuards(AuthGuard('jwt-refresh'))
     @Post('refresh')
     async refresh(@Req() req) {
@@ -77,6 +81,7 @@ export class AuthController {
      * Endpoint to log out the user.
      * @param req - The request object.
      */
+    @ResponseMessage('Logged out successfully')
     @UseGuards(AuthGuard('jwt'))
     @Get('logout')
     async logout(@Req() req) {

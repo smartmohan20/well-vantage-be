@@ -6,17 +6,20 @@ import {
     HttpStatus,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 import { AppLogger } from '../../shared/logger/logger.service';
+import { IStandardResponse } from '../interfaces/response.interface';
 
 /**
  * Global exception filter to catch and format all unhandled exceptions.
- * Logs the error and returns a standard error response.
+ * Logs the error and returns a standard error response matching the IStandardResponse format.
  */
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
     constructor(
         private readonly httpAdapterHost: HttpAdapterHost,
         private readonly logger: AppLogger,
+        private readonly configService: ConfigService,
     ) { }
 
     /**
@@ -27,26 +30,46 @@ export class AllExceptionsFilter implements ExceptionFilter {
     catch(exception: unknown, host: ArgumentsHost): void {
         try {
             const { httpAdapter } = this.httpAdapterHost;
-
             const ctx = host.switchToHttp();
+            const request = ctx.getRequest();
 
             const httpStatus =
                 exception instanceof HttpException
                     ? exception.getStatus()
                     : HttpStatus.INTERNAL_SERVER_ERROR;
 
-            const responseBody = {
+            const exceptionResponse =
+                exception instanceof HttpException ? exception.getResponse() : null;
+
+            const message =
+                typeof exceptionResponse === 'object' && exceptionResponse !== null
+                    ? (exceptionResponse as any).message || (exception as any).message
+                    : (exception as any).message || 'Internal server error';
+
+            const errorName =
+                typeof exceptionResponse === 'object' && exceptionResponse !== null
+                    ? (exceptionResponse as any).error || (exception as any).name
+                    : (exception as any).name || 'Internal Server Error';
+
+            const responseBody: IStandardResponse<null> = {
+                success: false,
                 statusCode: httpStatus,
+                message: Array.isArray(message) ? message[0] : message,
+                error: errorName,
+                path: httpAdapter.getRequestUrl(request),
                 timestamp: new Date().toISOString(),
-                path: httpAdapter.getRequestUrl(ctx.getRequest()),
-                message: (exception as any).message || 'Internal server error',
             };
 
             // Log the error
+            const { method, url } = request;
+            const logMessage = `Exception: ${method} ${url} - ${httpStatus}`;
+
             if (httpStatus === HttpStatus.INTERNAL_SERVER_ERROR) {
-                this.logger.error('Internal Server Error', (exception as any).stack);
-            } else {
-                this.logger.warn(`Exception: ${JSON.stringify(responseBody)}`);
+                this.logger.error(logMessage, (exception as any).stack, {
+                    path: httpAdapter.getRequestUrl(request),
+                });
+            } else if (this.configService.get<boolean>('LOG_RESPONSES')) {
+                this.logger.warn(logMessage, responseBody);
             }
 
             httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);

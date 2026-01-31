@@ -1,5 +1,5 @@
 import { plainToInstance } from 'class-transformer';
-import { IsEnum, IsNumber, IsString, validateSync } from 'class-validator';
+import { IsBoolean, IsEnum, IsNumber, IsString, validateSync } from 'class-validator';
 
 /**
  * Supported environment types.
@@ -35,6 +35,11 @@ export class EnvironmentVariables {
     @IsString()
     GOOGLE_CALLBACK_URL: string;
 
+    @IsBoolean()
+    LOG_REQUESTS: boolean;
+
+    @IsBoolean()
+    LOG_RESPONSES: boolean;
 }
 
 /**
