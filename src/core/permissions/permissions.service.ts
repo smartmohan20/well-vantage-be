@@ -8,6 +8,7 @@ interface PermissionData {
             permissions: string[];
         };
     };
+    globalPermissions: string[];
 }
 
 @Injectable()
@@ -25,9 +26,18 @@ export class PermissionsService implements OnModuleInit {
     }
 
     hasPermission(role: string, permission: string): boolean {
+        // First check if it's a global permission
+        if (this.isGlobalPermission(permission)) {
+            return true;
+        }
+
         const roleData = this.permissionsData.roles[role];
         if (!roleData) return false;
         return roleData.permissions.includes(permission);
+    }
+
+    isGlobalPermission(permission: string): boolean {
+        return this.permissionsData.globalPermissions.includes(permission);
     }
 
     getPermissionsForRole(role: string): string[] {

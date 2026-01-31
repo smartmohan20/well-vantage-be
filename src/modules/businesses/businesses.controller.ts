@@ -13,7 +13,7 @@ export class BusinessesController {
 
     @Post()
     @RequirePermissions('CREATE_BUSINESS')
-    @ResponseMessage('Business created successfully and role updated to BUSINESS_OWNER')
+    @ResponseMessage('Business created successfully with OWNER membership')
     async create(@Req() req, @Body() createBusinessDto: CreateBusinessDto) {
         try {
             const userId = req.user.id;

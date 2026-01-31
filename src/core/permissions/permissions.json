@@ -1,12 +1,6 @@
 {
     "roles": {
-        "USER": {
-            "permissions": [
-                "CREATE_BUSINESS",
-                "SIGN_UP"
-            ]
-        },
-        "BUSINESS_OWNER": {
+        "OWNER": {
             "permissions": [
                 "ADD_EMPLOYEE",
                 "ADD_MEMBER",
@@ -15,7 +9,7 @@
                 "VIEW_WORKOUTS"
             ]
         },
-        "BUSINESS_EMPLOYEE": {
+        "EMPLOYEE": {
             "permissions": [
                 "VIEW_MEMBERS",
                 "VIEW_WORKOUTS",
@@ -29,5 +23,9 @@
                 "VIEW_WORKOUTS"
             ]
         }
-    }
+    },
+    "globalPermissions": [
+        "CREATE_BUSINESS",
+        "SIGN_UP"
+    ]
 }

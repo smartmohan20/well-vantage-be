@@ -112,9 +112,9 @@ export class AuthService {
      * @param user - The user object.
      * @returns An object containing the access and refresh tokens.
      */
-    async login(user: User) {
+    async login(user: any) {
         try {
-            const tokens = await this.getTokens(user.id, user.email, user.role);
+            const tokens = await this.getTokens(user.id, user.email);
             await this.updateRefreshToken(user.id, tokens.refresh_token);
             return tokens;
         } catch (error) {
@@ -144,11 +144,10 @@ export class AuthService {
      * @param email - The email of the user.
      * @returns An object containing both tokens.
      */
-    async getTokens(userId: string, email: string, role: string) {
+    async getTokens(userId: string, email: string) {
         return JwtUtil.generateTokens(this.jwtService, this.configService, {
             sub: userId,
             email,
-            role,
         });
     }
 
@@ -173,7 +172,7 @@ export class AuthService {
                 throw new ForbiddenException('Access Denied');
             }
 
-            const tokens = await this.getTokens(user.id, user.email, user.role);
+            const tokens = await this.getTokens(user.id, user.email);
             await this.updateRefreshToken(user.id, tokens.refresh_token);
             return tokens;
         } catch (error) {

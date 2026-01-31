@@ -8,28 +8,27 @@ generator client {
 }
 
 enum Role {
-  USER
-  BUSINESS_OWNER
-  BUSINESS_EMPLOYEE
+  OWNER
+  EMPLOYEE
   MEMBER
 }
 
 model User {
-  id           String    @id @default(uuid())
-  email        String    @unique
+  id           String       @id @default(uuid())
+  email        String       @unique
   password     String
   name         String
-  role         Role      @default(USER)
-  googleId     String?   @unique
+  googleId     String?      @unique
   refreshToken String?
   bookings     Booking[]
+  memberships  Membership[]
   businesses   Business[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 }
 
 model Business {
-  id          String   @id @default(uuid())
+  id          String       @id @default(uuid())
   name        String
   houseNumber String
   street      String
@@ -39,10 +38,24 @@ model Business {
   mapUrl      String?
   latitude    Float?
   longitude   Float?
-  owner       User     @relation(fields: [ownerId], references: [id])
+  owner       User         @relation(fields: [ownerId], references: [id])
   ownerId     String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  memberships Membership[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Membership {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  business   Business @relation(fields: [businessId], references: [id])
+  businessId String
+  role       Role
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, businessId])
 }
 
 model WorkoutSession {
