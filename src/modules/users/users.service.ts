@@ -12,48 +12,53 @@ export class UsersService {
     constructor(private prisma: PrismaService) { }
 
     /**
-     * Creates a new user in the system.
+     * Creates a new user in the system with authentication details.
      * @param createUserDto - Data for creating the user.
-     * @returns The created user object.
-     * @throws ConflictException if the user with the same email already exists.
+     * @returns The created user object including auth details.
+     * @throws ConflictException if the user with the same email or phone number already exists.
      */
-    async create(createUserDto: CreateUserDto): Promise<User> {
+    async create(createUserDto: CreateUserDto) {
         try {
-            const existing = await this.prisma.user.findUnique({
-                where: { email: createUserDto.email },
-            });
-            if (existing) {
-                throw new ConflictException('User with this email already exists');
-            }
+            return await this.prisma.$transaction(async (tx) => {
+                const existingAuth = await tx.auth.findUnique({
+                    where: { email: createUserDto.email },
+                });
+                if (existingAuth) {
+                    throw new ConflictException('User with this email already exists');
+                }
 
-            const hashedPassword = await hashPassword(createUserDto.password);
+                const existingPhone = await tx.user.findUnique({
+                    where: { phoneNumber: createUserDto.phoneNumber },
+                });
+                if (existingPhone) {
+                    throw new ConflictException('User with this phone number already exists');
+                }
 
-            return await this.prisma.user.create({
-                data: {
-                    email: createUserDto.email,
-                    password: hashedPassword,
-                    name: createUserDto.name,
-                    googleId: createUserDto.googleId,
-                },
+                const hashedPassword = await hashPassword(createUserDto.password);
+
+                return await tx.user.create({
+                    data: {
+                        name: createUserDto.name,
+                        phoneNumber: createUserDto.phoneNumber,
+                        auth: {
+                            create: {
+                                email: createUserDto.email,
+                                password: hashedPassword,
+                                googleId: createUserDto.googleId,
+                            },
+                        },
+                    },
+                    include: {
+                        auth: true,
+                    },
+                });
             });
         } catch (error) {
             if (error instanceof ConflictException) throw error;
-            throw error; // Let global filter handle unknown errors
+            throw error;
         }
     }
 
-    /**
-     * Finds a user by their email address.
-     * @param email - The email to search for.
-     * @returns The user object if found, otherwise null.
-     */
-    async findByEmail(email: string): Promise<User | null> {
-        try {
-            return await this.prisma.user.findUnique({ where: { email } });
-        } catch (error) {
-            return null;
-        }
-    }
 
     /**
      * Finds a user by their unique identifier.

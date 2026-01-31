@@ -15,16 +15,26 @@ enum Role {
 
 model User {
   id           String       @id @default(uuid())
-  email        String       @unique
-  password     String
   name         String
-  googleId     String?      @unique
-  refreshToken String?
+  phoneNumber  String       @unique
+  auth         Auth?
   bookings     Booking[]
   memberships  Membership[]
   businesses   Business[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
+}
+
+model Auth {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  password     String
+  googleId     String?  @unique
+  refreshToken String?
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Business {
@@ -35,6 +45,7 @@ model Business {
   city        String
   state       String
   zipCode     String
+  phoneNumber String
   mapUrl      String?
   latitude    Float?
   longitude   Float?

@@ -7,6 +7,7 @@ CREATE TABLE "Business" (
     "city" TEXT NOT NULL,
     "state" TEXT NOT NULL,
     "zipCode" TEXT NOT NULL,
+    "phoneNumber" TEXT NOT NULL,
     "mapUrl" TEXT,
     "latitude" DOUBLE PRECISION,
     "longitude" DOUBLE PRECISION,

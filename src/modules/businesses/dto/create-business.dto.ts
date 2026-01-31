@@ -25,6 +25,10 @@ export class CreateBusinessDto {
     @IsNotEmpty()
     zipCode: string;
 
+    @IsString()
+    @IsNotEmpty()
+    phoneNumber: string;
+
     @IsUrl()
     @IsOptional()
     mapUrl?: string;

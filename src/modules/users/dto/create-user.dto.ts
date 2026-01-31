@@ -11,6 +11,10 @@ export class CreateUserDto {
     @IsNotEmpty()
     email: string;
 
+    @IsString()
+    @IsNotEmpty()
+    phoneNumber: string;
+
     /**
      * User's password. Must be at least 6 characters long.
      */
