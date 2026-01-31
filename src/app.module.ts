@@ -12,6 +12,8 @@ import { validate } from './core/config/env.config';
 
 import { PermissionsModule } from './core/permissions/permissions.module';
 
+import { GymsModule } from './modules/gyms/gyms.module';
+
 /**
  * Root module of the application.
  * Responsibility: Aggregate all modules, configure global filters and interceptors.
@@ -28,6 +30,7 @@ import { PermissionsModule } from './core/permissions/permissions.module';
         UsersModule,
         AuthModule,
         WorkoutsModule,
+        GymsModule,
     ],
     providers: [
         {
