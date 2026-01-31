@@ -27,11 +27,13 @@ export class UsersService {
                     throw new ConflictException('User with this email already exists');
                 }
 
-                const existingPhone = await tx.user.findUnique({
-                    where: { phoneNumber: createUserDto.phoneNumber },
-                });
-                if (existingPhone) {
-                    throw new ConflictException('User with this phone number already exists');
+                if (createUserDto.phoneNumber) {
+                    const existingPhone = await tx.user.findUnique({
+                        where: { phoneNumber: createUserDto.phoneNumber },
+                    });
+                    if (existingPhone) {
+                        throw new ConflictException('User with this phone number already exists');
+                    }
                 }
 
                 const hashedPassword = await hashPassword(createUserDto.password);

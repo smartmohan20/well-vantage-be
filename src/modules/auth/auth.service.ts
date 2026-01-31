@@ -80,7 +80,6 @@ export class AuthService {
                 password: StringUtil.generateRandomString(16),
                 googleId: details.googleId,
                 name: details.name,
-                phoneNumber: `PENDING-${StringUtil.generateRandomString(10)}`,
             });
 
             return {

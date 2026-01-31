@@ -6,28 +6,28 @@ export class CreateBusinessDto {
     name: string;
 
     @IsString()
-    @IsNotEmpty()
-    houseNumber: string;
+    @IsOptional()
+    houseNumber?: string;
 
     @IsString()
-    @IsNotEmpty()
-    street: string;
+    @IsOptional()
+    street?: string;
 
     @IsString()
-    @IsNotEmpty()
-    city: string;
+    @IsOptional()
+    city?: string;
 
     @IsString()
-    @IsNotEmpty()
-    state: string;
+    @IsOptional()
+    state?: string;
 
     @IsString()
-    @IsNotEmpty()
-    zipCode: string;
+    @IsOptional()
+    zipCode?: string;
 
     @IsString()
-    @IsNotEmpty()
-    phoneNumber: string;
+    @IsOptional()
+    phoneNumber?: string;
 
     @IsUrl()
     @IsOptional()

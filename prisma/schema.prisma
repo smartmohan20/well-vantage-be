@@ -16,7 +16,7 @@ enum Role {
 model User {
   id           String       @id @default(uuid())
   name         String
-  phoneNumber  String       @unique
+  phoneNumber  String?      @unique
   auth         Auth?
   bookings     Booking[]
   memberships  Membership[]
@@ -40,12 +40,12 @@ model Auth {
 model Business {
   id          String       @id @default(uuid())
   name        String
-  houseNumber String
-  street      String
-  city        String
-  state       String
-  zipCode     String
-  phoneNumber String
+  houseNumber String?
+  street      String?
+  city        String?
+  state       String?
+  zipCode     String?
+  phoneNumber String?
   mapUrl      String?
   latitude    Float?
   longitude   Float?
