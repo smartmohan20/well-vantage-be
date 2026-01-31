@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Req, Param } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, Param, Get, Query } from '@nestjs/common';
 import { WorkoutsService } from './workouts.service';
 import { SetAvailabilityDto } from './dto/set-availability.dto';
 import { CreateSlotsDto } from './dto/create-slots.dto';
@@ -44,6 +44,27 @@ export class WorkoutsController {
     async createSlots(@Param('id') availabilityId: string, @Body() createSlotsDto: CreateSlotsDto) {
         try {
             return await this.workoutsService.createSlots(availabilityId, createSlotsDto);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * Endpoint to get workout availabilities for a particular gym.
+     * @param businessId - The ID of the gym.
+     * @param from - Start date filter (optional).
+     * @param to - End date filter (optional).
+     * @returns List of workout sessions with availabilities.
+     */
+    @ResponseMessage('Availabilities retrieved successfully')
+    @Get('business/:businessId/availabilities')
+    async getAvailabilities(
+        @Param('businessId') businessId: string,
+        @Query('from') from?: string,
+        @Query('to') to?: string,
+    ) {
+        try {
+            return await this.workoutsService.getAvailabilities(businessId, from, to);
         } catch (error) {
             throw error;
         }

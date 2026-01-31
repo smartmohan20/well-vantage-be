@@ -22,6 +22,7 @@ export class WorkoutsService {
             return await this.prisma.workoutSession.create({
                 data: {
                     name: setAvailabilityDto.sessionName,
+                    business: { connect: { id: setAvailabilityDto.businessId } },
                     availabilities: {
                         create: setAvailabilityDto.availabilities.map((slot) => ({
                             startTime: new Date(slot.startTime),
@@ -68,6 +69,57 @@ export class WorkoutsService {
                     slots: true,
                 },
             });
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * Retrieves all workout availabilities for a specific gym within a date range.
+     * @param gymId - The ID of the gym (business).
+     * @param from - Start date filter (optional).
+     * @param to - End date filter (optional).
+     * @returns List of workout sessions with filtered availabilities.
+     */
+    async getAvailabilities(gymId: string, from?: string, to?: string) {
+        try {
+            const whereClause: any = {
+                businessId: gymId,
+            };
+
+            const availabilityWhere: any = {};
+
+            if (from) {
+                availabilityWhere.startTime = {
+                    gte: new Date(from),
+                };
+            }
+
+            if (to) {
+                availabilityWhere.endTime = {
+                    ...availabilityWhere.endTime,
+                    lte: new Date(to),
+                };
+            }
+
+            // If we have date filters, we want to ensure we only get sessions that have availabilities in that range
+            // But Prisma include filtering is what we need to filter the availabilities relation
+
+            const sessions = await this.prisma.workoutSession.findMany({
+                where: whereClause,
+                include: {
+                    availabilities: {
+                        where: availabilityWhere,
+                        include: {
+                            slots: true
+                        }
+                    },
+                },
+            });
+
+            // Filter out sessions that have no availabilities matching the criteria (optional, but cleaner)
+            return sessions.filter(session => session.availabilities.length > 0);
+
         } catch (error) {
             throw error;
         }

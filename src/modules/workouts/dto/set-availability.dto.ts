@@ -32,6 +32,13 @@ export class SetAvailabilityDto {
     sessionName: string;
 
     /**
+     * The ID of the gym (business) where the workout session is held.
+     */
+    @IsString()
+    @IsNotEmpty()
+    businessId: string;
+
+    /**
      * List of availability dates/times for the session.
      */
     @IsArray()

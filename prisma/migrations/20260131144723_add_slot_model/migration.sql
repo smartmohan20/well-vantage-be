@@ -21,3 +21,9 @@ CREATE TABLE "Slot" (
 
 -- AddForeignKey
 ALTER TABLE "Slot" ADD CONSTRAINT "Slot_sessionAvailabilityId_fkey" FOREIGN KEY ("sessionAvailabilityId") REFERENCES "SessionAvailability"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AlterTable
+ALTER TABLE "WorkoutSession" ADD COLUMN     "businessId" TEXT NOT NULL;
+
+-- AddForeignKey
+ALTER TABLE "WorkoutSession" ADD CONSTRAINT "WorkoutSession_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
