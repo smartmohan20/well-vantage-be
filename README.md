@@ -40,9 +40,9 @@ Detailed documentation for specific modules can be found in the `docs/` folder:
 
 | Documentation | Description |
 | :--- | :--- |
-| [**Setup Guide**](./docs/setup.md) | Initial environment setup and installation steps. |
-| [**API Specification**](./docs/api.md) | Detailed endpoint documentation and request/response formats. |
-| [**Prisma Schema**](./docs/prisma.md) | Database models, migrations, and relationship diagrams. |
+| [**Setup Guide**](./docs/SETUP.md) | Initial environment setup and installation steps. |
+| [**API Specification**](./docs/API.md) | Detailed endpoint documentation and request/response formats. |
+| [**Prisma Schema**](./docs/PRISMA.md) | Database models, migrations, and relationship diagrams. |
 
 ## ⚡ Quick Start
 
@@ -62,7 +62,7 @@ Ensure you have the following installed:
    ```bash
    npm install
    ```
-3. Configure environment variables (refer to `.env.example` or [Setup](./docs/setup.md)):
+3. Configure environment variables (refer to `.env.example` or [Setup](./docs/SETUP.md)):
    ```bash
    cp .env.example .env
    ```

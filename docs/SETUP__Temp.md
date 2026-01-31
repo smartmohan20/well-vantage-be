@@ -133,4 +133,4 @@ npm run start:prod
 
 ## 📖 API Documentation
 
-Once the server is running, you can refer to the [API Documentation](./api.md) for details on available endpoints.
+Once the server is running, you can refer to the [API Documentation](./API.md) for details on available endpoints.
