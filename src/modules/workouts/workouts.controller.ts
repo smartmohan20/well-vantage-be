@@ -1,6 +1,7 @@
-import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, Param } from '@nestjs/common';
 import { WorkoutsService } from './workouts.service';
 import { SetAvailabilityDto } from './dto/set-availability.dto';
+import { CreateSlotsDto } from './dto/create-slots.dto';
 
 import { ResponseMessage } from '../../core/decorators/response-message.decorator';
 import { AuthGuard } from '@nestjs/passport';
@@ -26,6 +27,23 @@ export class WorkoutsController {
     async setAvailability(@Body() setAvailabilityDto: SetAvailabilityDto) {
         try {
             return await this.workoutsService.setAvailability(setAvailabilityDto);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+     * Endpoint to create slots for a specific session availability.
+     * @param availabilityId - The ID of the session availability.
+     * @param createSlotsDto - Data containing slots.
+     * @returns The updated session availability with new slots.
+     */
+    @ResponseMessage('Slots created successfully')
+    @RequirePermissions('MANAGE_BUSINESS')
+    @Post('availability/:id/slots')
+    async createSlots(@Param('id') availabilityId: string, @Body() createSlotsDto: CreateSlotsDto) {
+        try {
+            return await this.workoutsService.createSlots(availabilityId, createSlotsDto);
         } catch (error) {
             throw error;
         }

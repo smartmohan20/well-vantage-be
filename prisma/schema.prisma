@@ -84,6 +84,19 @@ model SessionAvailability {
 
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+  slots            Slot[]
+}
+
+model Slot {
+  id                    String              @id @default(uuid())
+  startTime             DateTime
+  endTime               DateTime
+  isBooked              Boolean             @default(false)
+  sessionAvailability   SessionAvailability @relation(fields: [sessionAvailabilityId], references: [id])
+  sessionAvailabilityId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 
