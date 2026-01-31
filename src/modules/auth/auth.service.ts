@@ -114,7 +114,7 @@ export class AuthService {
      */
     async login(user: User) {
         try {
-            const tokens = await this.getTokens(user.id, user.email);
+            const tokens = await this.getTokens(user.id, user.email, user.role);
             await this.updateRefreshToken(user.id, tokens.refresh_token);
             return tokens;
         } catch (error) {
@@ -144,10 +144,11 @@ export class AuthService {
      * @param email - The email of the user.
      * @returns An object containing both tokens.
      */
-    async getTokens(userId: string, email: string) {
+    async getTokens(userId: string, email: string, role: string) {
         return JwtUtil.generateTokens(this.jwtService, this.configService, {
             sub: userId,
             email,
+            role,
         });
     }
 

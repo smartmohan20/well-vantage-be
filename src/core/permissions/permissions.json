@@ -1,0 +1,33 @@
+{
+    "roles": {
+        "USER": {
+            "permissions": [
+                "CREATE_GYM",
+                "SIGN_UP"
+            ]
+        },
+        "GYM_OWNER": {
+            "permissions": [
+                "ADD_EMPLOYEE",
+                "ADD_MEMBER",
+                "MANAGE_GYM",
+                "VIEW_MEMBERS",
+                "VIEW_WORKOUTS"
+            ]
+        },
+        "GYM_EMPLOYEE": {
+            "permissions": [
+                "VIEW_MEMBERS",
+                "VIEW_WORKOUTS",
+                "MARK_ATTENDANCE"
+            ]
+        },
+        "MEMBER": {
+            "permissions": [
+                "BOOK_SESSION",
+                "VIEW_OWN_BOOKINGS",
+                "VIEW_WORKOUTS"
+            ]
+        }
+    }
+}

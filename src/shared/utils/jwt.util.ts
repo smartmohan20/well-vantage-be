@@ -11,7 +11,7 @@ export const JwtUtil = {
     generateTokens: async (
         jwtService: JwtService,
         configService: ConfigService,
-        payload: { sub: string; email: string },
+        payload: { sub: string; email: string; role: string },
     ) => {
         try {
             const jwtSecret = configService.get<string>('JWT_SECRET');

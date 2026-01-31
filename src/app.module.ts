@@ -10,6 +10,8 @@ import { AllExceptionsFilter } from './core/filters/all-exceptions.filter';
 import { TransformInterceptor } from './core/interceptors/transform.interceptor';
 import { validate } from './core/config/env.config';
 
+import { PermissionsModule } from './core/permissions/permissions.module';
+
 /**
  * Root module of the application.
  * Responsibility: Aggregate all modules, configure global filters and interceptors.
@@ -22,6 +24,7 @@ import { validate } from './core/config/env.config';
         }),
         LoggerModule,
         PrismaModule,
+        PermissionsModule,
         UsersModule,
         AuthModule,
         WorkoutsModule,
