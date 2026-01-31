@@ -13,6 +13,7 @@ import { validate } from './core/config/env.config';
 import { PermissionsModule } from './core/permissions/permissions.module';
 
 import { BusinessesModule } from './modules/businesses/businesses.module';
+import { MembershipsModule } from './modules/memberships/memberships.module';
 
 /**
  * Root module of the application.
@@ -31,6 +32,7 @@ import { BusinessesModule } from './modules/businesses/businesses.module';
         AuthModule,
         WorkoutsModule,
         BusinessesModule,
+        MembershipsModule,
     ],
     providers: [
         {

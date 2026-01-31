@@ -1,7 +1,7 @@
 import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { WorkoutsService } from './workouts.service';
 import { SetAvailabilityDto } from './dto/set-availability.dto';
-import { BookSlotsDto } from './dto/book-slots.dto';
+
 import { ResponseMessage } from '../../core/decorators/response-message.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { PermissionsGuard } from '../../core/permissions/permissions.guard';
@@ -16,13 +16,13 @@ export class WorkoutsController {
     constructor(private readonly workoutsService: WorkoutsService) { }
 
     /**
-     * Endpoint to set availability for a workout session.
+     * Endpoint to create workout slots.
      * @param setAvailabilityDto - Session name and multiple availability slots.
      * @returns The created session and its availabilities.
      */
-    @ResponseMessage('Workout session availability set successfully')
+    @ResponseMessage('Workout slots created successfully')
     @RequirePermissions('MANAGE_BUSINESS')
-    @Post('availability')
+    @Post('slots')
     async setAvailability(@Body() setAvailabilityDto: SetAvailabilityDto) {
         try {
             return await this.workoutsService.setAvailability(setAvailabilityDto);
@@ -31,21 +31,5 @@ export class WorkoutsController {
         }
     }
 
-    /**
-     * Endpoint for a client to book one or more slots.
-     * @param req - The request object containing user payload.
-     * @param bookSlotsDto - List of slot IDs to book.
-     * @returns The created bookings.
-     */
-    @ResponseMessage('Slots booked successfully')
-    @RequirePermissions('BOOK_SESSION')
-    @Post('book')
-    async bookSlots(@Req() req, @Body() bookSlotsDto: BookSlotsDto) {
-        try {
-            const userId = req.user.id;
-            return await this.workoutsService.bookSlots(userId, bookSlotsDto);
-        } catch (error) {
-            throw error;
-        }
-    }
+
 }
