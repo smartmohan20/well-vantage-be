@@ -1,28 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../shared/prisma/prisma.service';
-import { CreateGymDto } from './dto/create-gym.dto';
+import { CreateBusinessDto } from './dto/create-business.dto';
 
 @Injectable()
-export class GymsService {
+export class BusinessesService {
     constructor(private prisma: PrismaService) { }
 
-    async create(userId: string, createGymDto: CreateGymDto) {
+    async create(userId: string, createBusinessDto: CreateBusinessDto) {
         try {
-            // Create the gym and update the user role to GYM_OWNER in a transaction
+            // Create the business and update the user role to BUSINESS_OWNER in a transaction
             return await this.prisma.$transaction(async (tx) => {
-                const gym = await tx.gym.create({
+                const business = await tx.business.create({
                     data: {
-                        ...createGymDto,
+                        ...createBusinessDto,
                         ownerId: userId,
                     },
                 });
 
                 await tx.user.update({
                     where: { id: userId },
-                    data: { role: 'GYM_OWNER' },
+                    data: { role: 'BUSINESS_OWNER' },
                 });
 
-                return gym;
+                return business;
             });
         } catch (error) {
             throw error;
@@ -30,13 +30,13 @@ export class GymsService {
     }
 
     async findAll() {
-        return this.prisma.gym.findMany({
+        return this.prisma.business.findMany({
             include: { owner: true }
         });
     }
 
     async findOne(id: string) {
-        return this.prisma.gym.findUnique({
+        return this.prisma.business.findUnique({
             where: { id },
             include: { owner: true }
         });

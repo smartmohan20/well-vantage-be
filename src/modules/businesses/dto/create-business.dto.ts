@@ -1,6 +1,6 @@
-import { IsString, IsNotEmpty, IsOptional, IsUrl, IsNumber, IsPostalCode } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsUrl, IsNumber } from 'class-validator';
 
-export class CreateGymDto {
+export class CreateBusinessDto {
     @IsString()
     @IsNotEmpty()
     name: string;

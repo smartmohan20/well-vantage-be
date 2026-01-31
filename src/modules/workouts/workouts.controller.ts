@@ -21,7 +21,7 @@ export class WorkoutsController {
      * @returns The created session and its availabilities.
      */
     @ResponseMessage('Workout session availability set successfully')
-    @RequirePermissions('MANAGE_GYM')
+    @RequirePermissions('MANAGE_BUSINESS')
     @Post('availability')
     async setAvailability(@Body() setAvailabilityDto: SetAvailabilityDto) {
         try {

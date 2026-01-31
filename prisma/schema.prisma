@@ -9,8 +9,8 @@ generator client {
 
 enum Role {
   USER
-  GYM_OWNER
-  GYM_EMPLOYEE
+  BUSINESS_OWNER
+  BUSINESS_EMPLOYEE
   MEMBER
 }
 
@@ -23,12 +23,12 @@ model User {
   googleId     String?   @unique
   refreshToken String?
   bookings     Booking[]
-  gyms         Gym[]
+  businesses   Business[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
 
-model Gym {
+model Business {
   id          String   @id @default(uuid())
   name        String
   houseNumber String

@@ -12,7 +12,7 @@ import { validate } from './core/config/env.config';
 
 import { PermissionsModule } from './core/permissions/permissions.module';
 
-import { GymsModule } from './modules/gyms/gyms.module';
+import { BusinessesModule } from './modules/businesses/businesses.module';
 
 /**
  * Root module of the application.
@@ -30,7 +30,7 @@ import { GymsModule } from './modules/gyms/gyms.module';
         UsersModule,
         AuthModule,
         WorkoutsModule,
-        GymsModule,
+        BusinessesModule,
     ],
     providers: [
         {

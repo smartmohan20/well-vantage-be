@@ -2,20 +2,20 @@
     "roles": {
         "USER": {
             "permissions": [
-                "CREATE_GYM",
+                "CREATE_BUSINESS",
                 "SIGN_UP"
             ]
         },
-        "GYM_OWNER": {
+        "BUSINESS_OWNER": {
             "permissions": [
                 "ADD_EMPLOYEE",
                 "ADD_MEMBER",
-                "MANAGE_GYM",
+                "MANAGE_BUSINESS",
                 "VIEW_MEMBERS",
                 "VIEW_WORKOUTS"
             ]
         },
-        "GYM_EMPLOYEE": {
+        "BUSINESS_EMPLOYEE": {
             "permissions": [
                 "VIEW_MEMBERS",
                 "VIEW_WORKOUTS",
