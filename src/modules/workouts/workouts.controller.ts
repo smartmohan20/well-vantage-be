@@ -1,7 +1,9 @@
-import { Controller, Post, Body, UseGuards, Req, Param, Get, Query } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, Param, Get, Query, ParseUUIDPipe } from '@nestjs/common';
 import { WorkoutsService } from './workouts.service';
 import { SetAvailabilityDto } from './dto/set-availability.dto';
 import { CreateSlotsDto } from './dto/create-slots.dto';
+import { GetAvailabilitiesQueryDto } from './dto/get-availabilities.dto';
+import { GetAvailableSlotsQueryDto } from './dto/get-available-slots.dto';
 
 import { ResponseMessage } from '../../core/decorators/response-message.decorator';
 import { AuthGuard } from '@nestjs/passport';
@@ -41,7 +43,7 @@ export class WorkoutsController {
     @ResponseMessage('Slots created successfully')
     @RequirePermissions('business:manage:own')
     @Post('availability/:id/slots')
-    async createSlots(@Param('id') availabilityId: string, @Body() createSlotsDto: CreateSlotsDto) {
+    async createSlots(@Param('id', ParseUUIDPipe) availabilityId: string, @Body() createSlotsDto: CreateSlotsDto) {
         try {
             return await this.workoutsService.createSlots(availabilityId, createSlotsDto);
         } catch (error) {
@@ -60,12 +62,11 @@ export class WorkoutsController {
     @RequirePermissions('workout:read:business')
     @Get('business/:businessId/availabilities')
     async getAvailabilities(
-        @Param('businessId') businessId: string,
-        @Query('from') from?: string,
-        @Query('to') to?: string,
+        @Param('businessId', ParseUUIDPipe) businessId: string,
+        @Query() query: GetAvailabilitiesQueryDto,
     ) {
         try {
-            return await this.workoutsService.getAvailabilities(businessId, from, to);
+            return await this.workoutsService.getAvailabilities(businessId, query.from, query.to);
         } catch (error) {
             throw error;
         }
@@ -81,11 +82,11 @@ export class WorkoutsController {
     @RequirePermissions('workout:read:business')
     @Get('business/:businessId/slots/available')
     async getAvailableSlots(
-        @Param('businessId') businessId: string,
-        @Query('date') date?: string,
+        @Param('businessId', ParseUUIDPipe) businessId: string,
+        @Query() query: GetAvailableSlotsQueryDto,
     ) {
         try {
-            return await this.workoutsService.getAvailableSlots(businessId, date);
+            return await this.workoutsService.getAvailableSlots(businessId, query.date);
         } catch (error) {
             throw error;
         }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseGuards, ParseUUIDPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { PermissionsGuard } from '../../core/permissions/permissions.guard';
 import { RequirePermissions } from '../../core/decorators/permissions.decorator';
@@ -24,13 +24,13 @@ export class MembershipsController {
 
     @Get(':id')
     @RequirePermissions('member:read:business')
-    findOne(@Param('id') id: string) {
+    findOne(@Param('id', ParseUUIDPipe) id: string) {
         return this.membershipsService.findOne(id);
     }
 
     @Delete(':id')
     @RequirePermissions('business:manage:own')
-    remove(@Param('id') id: string) {
+    remove(@Param('id', ParseUUIDPipe) id: string) {
         return this.membershipsService.remove(id);
     }
 }

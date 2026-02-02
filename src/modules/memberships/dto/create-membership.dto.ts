@@ -1,12 +1,12 @@
-import { IsString, IsEnum, IsNotEmpty } from 'class-validator';
+import { IsString, IsEnum, IsNotEmpty, IsUUID } from 'class-validator';
 import { Role } from '@prisma/client';
 
 export class CreateMembershipDto {
-    @IsString()
+    @IsUUID()
     @IsNotEmpty()
     userId: string;
 
-    @IsString()
+    @IsUUID()
     @IsNotEmpty()
     businessId: string;
 

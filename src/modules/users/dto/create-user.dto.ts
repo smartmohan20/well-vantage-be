@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, IsPhoneNumber } from 'class-validator';
 
 /**
  * Data Transfer Object for user registration.
@@ -13,6 +13,7 @@ export class CreateUserDto {
 
     @IsString()
     @IsOptional()
+    @IsPhoneNumber()
     phoneNumber?: string;
 
     /**

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Req, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, Get, Param, ParseUUIDPipe } from '@nestjs/common';
 import { BusinessesService } from './businesses.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -31,7 +31,7 @@ export class BusinessesController {
 
     @Get(':id')
     @ResponseMessage('Business details retrieved successfully')
-    async findOne(@Param('id') id: string) {
+    async findOne(@Param('id', ParseUUIDPipe) id: string) {
         return await this.businessesService.findOne(id);
     }
 }

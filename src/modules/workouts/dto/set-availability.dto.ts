@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsArray, ValidateNested, IsDateString } from 'class-validator';
+import { IsString, IsNotEmpty, IsArray, ValidateNested, IsDateString, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
 
 /**
@@ -34,7 +34,7 @@ export class SetAvailabilityDto {
     /**
      * The ID of the gym (business) where the workout session is held.
      */
-    @IsString()
+    @IsUUID()
     @IsNotEmpty()
     businessId: string;
 
