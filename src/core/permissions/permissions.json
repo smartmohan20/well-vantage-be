@@ -14,7 +14,8 @@
                 "workout:read:own",
                 "availability:read:own",
                 "slot:read:own",
-                "attendance:mark:own"
+                "attendance:mark:own",
+                "workout:read:business"
             ]
         },
         "MEMBER": {

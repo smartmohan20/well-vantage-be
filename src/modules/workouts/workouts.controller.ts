@@ -57,6 +57,7 @@ export class WorkoutsController {
      * @returns List of workout sessions with availabilities.
      */
     @ResponseMessage('Availabilities retrieved successfully')
+    @RequirePermissions('workout:read:business')
     @Get('business/:businessId/availabilities')
     async getAvailabilities(
         @Param('businessId') businessId: string,
@@ -77,6 +78,7 @@ export class WorkoutsController {
      * @returns List of available slots.
      */
     @ResponseMessage('Available slots retrieved successfully')
+    @RequirePermissions('workout:read:business')
     @Get('business/:businessId/slots/available')
     async getAvailableSlots(
         @Param('businessId') businessId: string,
