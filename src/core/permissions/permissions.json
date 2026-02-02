@@ -6,8 +6,7 @@
                 "member:add:business",
                 "business:manage:own",
                 "member:read:business",
-                "workout:read:business",
-                "data:sell:business"
+                "workout:read:business"
             ]
         },
         "EMPLOYEE": {
