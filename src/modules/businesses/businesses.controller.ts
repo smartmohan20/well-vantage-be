@@ -12,7 +12,7 @@ export class BusinessesController {
     constructor(private readonly businessesService: BusinessesService) { }
 
     @Post()
-    @RequirePermissions('business:create')
+    @RequirePermissions('business:create:global')
     @ResponseMessage('Business created successfully with OWNER membership')
     async create(@Req() req, @Body() createBusinessDto: CreateBusinessDto) {
         try {

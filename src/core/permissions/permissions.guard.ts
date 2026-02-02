@@ -23,8 +23,14 @@ export class PermissionsGuard implements CanActivate {
             return true;
         }
 
+
         const request = context.switchToHttp().getRequest();
         const { user } = request;
+
+        // Allow public access for signup
+        if (requiredPermissions.includes('user:signup:global')) {
+            return true;
+        }
 
         if (!user) {
             throw new ForbiddenException('Access denied: User not authenticated');

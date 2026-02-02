@@ -177,7 +177,7 @@ Creates a new gym/business. The creator is automatically assigned the `OWNER` ro
 - **URL:** `/businesses`
 - **Method:** `POST`
 - **Auth Required:** Yes
-- **Permissions:** `CREATE_BUSINESS`
+- **Permissions:** `business:create:global`
 
 <details>
 <summary><b>Request Payload</b></summary>
@@ -226,7 +226,7 @@ Creates a workout session with multiple availabilities.
 - **URL:** `/workouts/availabilities`
 - **Method:** `POST`
 - **Auth Required:** Yes
-- **Permissions:** `MANAGE_BUSINESS`
+- **Permissions:** `business:manage:own`
 
 <details>
 <summary><b>Request Payload</b></summary>
@@ -247,13 +247,25 @@ Creates a workout session with multiple availabilities.
 
 ---
 
-### 2. Add Slots to Availability
+### 2. Get Availabilities for Gym
+Retrieves workout sessions and their availability slots for a specific gym.
+
+- **URL:** `/workouts/business/:businessId/availabilities`
+- **Method:** `GET`
+- **Auth Required:** Yes
+- **Query Params:**
+  - `from`: (Optional) ISO Date path to filter from.
+  - `to`: (Optional) ISO Date path to filter to.
+
+---
+
+### 3. Add Slots to Availability
 Creates granular bookable slots for an existing session availability.
 
 - **URL:** `/workouts/availability/:id/slots`
 - **Method:** `POST`
 - **Auth Required:** Yes
-- **Permissions:** `MANAGE_BUSINESS`
+- **Permissions:** `business:manage:own`
 
 <details>
 <summary><b>Request Payload</b></summary>
@@ -269,18 +281,6 @@ Creates granular bookable slots for an existing session availability.
 }
 ```
 </details>
-
----
-
-### 3. Get Availabilities for Gym
-Retrieves workout sessions and their availability slots for a specific gym.
-
-- **URL:** `/workouts/business/:businessId/availabilities`
-- **Method:** `GET`
-- **Auth Required:** Yes
-- **Query Params:**
-  - `from`: (Optional) ISO Date path to filter from.
-  - `to`: (Optional) ISO Date path to filter to.
 
 ---
 

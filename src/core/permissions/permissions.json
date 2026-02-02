@@ -27,7 +27,7 @@
         }
     },
     "globalPermissions": [
-        "business:create",
-        "user:signup"
+        "business:create:global",
+        "user:signup:global"
     ]
 }

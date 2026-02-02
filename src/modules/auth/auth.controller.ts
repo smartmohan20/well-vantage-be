@@ -13,6 +13,8 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ResponseMessage } from '../../core/decorators/response-message.decorator';
 import { GoogleSigninDto } from './dto/google-signin.dto';
+import { PermissionsGuard } from '../../core/permissions/permissions.guard';
+import { RequirePermissions } from '../../core/decorators/permissions.decorator';
 
 /**
  * Controller responsible for handling authentication requests.
@@ -28,6 +30,8 @@ export class AuthController {
      * @returns The newly created user.
      */
     @ResponseMessage('User registered successfully')
+    @UseGuards(PermissionsGuard)
+    @RequirePermissions('user:signup:global')
     @Post('signup')
     async signup(@Body() createUserDto: CreateUserDto) {
         try {
