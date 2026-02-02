@@ -46,9 +46,10 @@ async function bootstrap() {
         // Utility Middlewares
         app.use(compression());
         app.use(cookieParser());
-        app.use(morgan('dev'));
 
-        // Session Configuration
+        // Morgan Logger Setup
+        app.use(morgan('dev')); // Console logging
+        app.use(morgan('combined', { stream: logger.getMorganStream() })); // File logging
         app.use(
             session({
                 secret: sessionSecret,

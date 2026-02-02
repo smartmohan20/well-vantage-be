@@ -148,6 +148,29 @@ export class AppLogger implements LoggerService {
                 createFileTransport('silly', true), // This will create nest.log
             ],
         });
+
+        // Separate logger for Morgan (HTTP requests)
+        this.morganLogger = winston.createLogger({
+            level: 'info',
+            format: winston.format.printf(({ message }) => message as string),
+            transports: [
+                new winston.transports.DailyRotateFile({
+                    filename: 'logs/%DATE%/morgan.log',
+                    datePattern: 'YYYY-MM-DD',
+                    maxFiles: '30d',
+                }),
+            ],
+        });
+    }
+
+    private morganLogger: winston.Logger;
+
+    getMorganStream() {
+        return {
+            write: (message: string) => {
+                this.morganLogger.info(message.trim());
+            },
+        };
     }
 
     log(message: any, ...optionalParams: any[]) {
