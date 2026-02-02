@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PermissionsService } from './permissions.service';
 import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
@@ -50,7 +50,7 @@ export class PermissionsGuard implements CanActivate {
         const businessId = request.params.businessId || request.params.id || request.body.businessId;
 
         if (!businessId) {
-            throw new ForbiddenException('Access denied: Business context not found for membership check');
+            throw new BadRequestException('Business ID is required');
         }
 
         const membership = await this.prisma.membership.findUnique({
