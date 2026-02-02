@@ -221,9 +221,9 @@ Retrieves details for a specific business.
 ## 🏋️ Workout Module (`/workouts`)
 
 ### 1. Set Session Availability
-Creates a workout session with multiple availability slots.
+Creates a workout session with multiple availabilities.
 
-- **URL:** `/workouts/slots`
+- **URL:** `/workouts/availabilities`
 - **Method:** `POST`
 - **Auth Required:** Yes
 - **Permissions:** `MANAGE_BUSINESS`

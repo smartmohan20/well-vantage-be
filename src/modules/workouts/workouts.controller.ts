@@ -17,13 +17,13 @@ export class WorkoutsController {
     constructor(private readonly workoutsService: WorkoutsService) { }
 
     /**
-     * Endpoint to create workout slots.
-     * @param setAvailabilityDto - Session name and multiple availability slots.
+     * Endpoint to set workout availabilities.
+     * @param setAvailabilityDto - Session name and multiple availability ranges.
      * @returns The created session and its availabilities.
      */
-    @ResponseMessage('Workout slots created successfully')
+    @ResponseMessage('Workout availabilities created successfully')
     @RequirePermissions('business:manage:own')
-    @Post('slots')
+    @Post('availabilities')
     async setAvailability(@Body() setAvailabilityDto: SetAvailabilityDto) {
         try {
             return await this.workoutsService.setAvailability(setAvailabilityDto);
