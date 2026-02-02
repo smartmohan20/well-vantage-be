@@ -2,30 +2,32 @@
     "roles": {
         "OWNER": {
             "permissions": [
-                "ADD_EMPLOYEE",
-                "ADD_MEMBER",
-                "MANAGE_BUSINESS",
-                "VIEW_MEMBERS",
-                "VIEW_WORKOUTS"
+                "employee:add:business",
+                "member:add:business",
+                "business:manage:own",
+                "member:read:business",
+                "workout:read:business",
+                "data:sell:business"
             ]
         },
         "EMPLOYEE": {
             "permissions": [
-                "VIEW_MEMBERS",
-                "VIEW_WORKOUTS",
-                "MARK_ATTENDANCE"
+                "workout:read:own",
+                "availability:read:own",
+                "slot:read:own",
+                "attendance:mark:own"
             ]
         },
         "MEMBER": {
             "permissions": [
-                "BOOK_SESSION",
-                "VIEW_OWN_BOOKINGS",
-                "VIEW_WORKOUTS"
+                "session:book:own",
+                "booking:read:own",
+                "workout:read:business"
             ]
         }
     },
     "globalPermissions": [
-        "CREATE_BUSINESS",
-        "SIGN_UP"
+        "business:create",
+        "user:signup"
     ]
 }

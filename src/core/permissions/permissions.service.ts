@@ -33,7 +33,26 @@ export class PermissionsService implements OnModuleInit {
 
         const roleData = this.permissionsData.roles[role];
         if (!roleData) return false;
-        return roleData.permissions.includes(permission);
+
+        // Check for exact match
+        if (roleData.permissions.includes(permission)) {
+            return true;
+        }
+
+        // Check for scoped match (business > own)
+        const [reqEntity, reqAction, reqScope] = permission.split(':');
+        if (!reqEntity || !reqAction || !reqScope) return false;
+
+        return roleData.permissions.some(userPerm => {
+            const [uEntity, uAction, uScope] = userPerm.split(':');
+            if (uEntity === reqEntity && uAction === reqAction) {
+                // Determine scope hierarchy
+                if (uScope === 'business' && reqScope === 'own') {
+                    return true;
+                }
+            }
+            return false;
+        });
     }
 
     isGlobalPermission(permission: string): boolean {

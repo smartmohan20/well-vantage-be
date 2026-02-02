@@ -22,7 +22,7 @@ export class WorkoutsController {
      * @returns The created session and its availabilities.
      */
     @ResponseMessage('Workout slots created successfully')
-    @RequirePermissions('MANAGE_BUSINESS')
+    @RequirePermissions('business:manage:own')
     @Post('slots')
     async setAvailability(@Body() setAvailabilityDto: SetAvailabilityDto) {
         try {
@@ -39,7 +39,7 @@ export class WorkoutsController {
      * @returns The updated session availability with new slots.
      */
     @ResponseMessage('Slots created successfully')
-    @RequirePermissions('MANAGE_BUSINESS')
+    @RequirePermissions('business:manage:own')
     @Post('availability/:id/slots')
     async createSlots(@Param('id') availabilityId: string, @Body() createSlotsDto: CreateSlotsDto) {
         try {
